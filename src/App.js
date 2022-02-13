@@ -1,23 +1,15 @@
-import logo from './logo.svg';
 import './App.css';
+import { Input, Button, Typography } from 'antd';
+import { FundFilled, SettingFilled } from '@ant-design/icons';
 
+
+const { Title } = Typography;
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Title><FundFilled /></Title>
+      <Input placeholder="Basic usage"/>
+      <Button type="primary" shape="circle" icon={<SettingFilled />} />
     </div>
   );
 }
