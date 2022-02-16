@@ -1,5 +1,8 @@
+@import '~antd/dist/antd.css';
+
 .App {
   text-align: center;
+  margin-top: 40px;
 }
 
 .title{
@@ -10,14 +13,14 @@
 
 .input{
   width: 60%;
-  height: 25px;
+  height: 30px;
+  font-size: 15px;
 }
 
 .button{
-  height: 48px;
-  width: 48px;
+  height: 30px;
+  width: 30px;
   margin-left: 10px;
-  font-size: 20px;
   color: #fff;
   background: #66ccff;
   border-color: #777;
