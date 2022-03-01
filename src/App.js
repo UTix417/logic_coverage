@@ -106,7 +106,12 @@ class App extends React.Component{
   }
 
   workWithNo = (syn,pos) => {
-    
+    pos=Object.keys(pos).sort((a,b)=>{
+      return pos[a]-pos[b];
+    })
+    Object.keys(pos).forEach((key)=>{
+      
+    })
   }
 
   workWithHave = (tureStr) => {
@@ -158,7 +163,7 @@ class App extends React.Component{
         if(syn[eleName]==eleSyn){
 
         }else{
-          if(syn[eleName]=='|'){
+          if(syn[eleName]=='|' || syn[eleName]==''){
             if(eleSyn=='&!'){
               syn[eleName]=eleSyn;
               pos[eleName]=i;
@@ -174,8 +179,8 @@ class App extends React.Component{
                   last=lasts[j];
                 }
               }
-              Object.keys(obj).forEach(()=>{
-                if(pos[obj]<last){
+              Object.keys(pos).forEach((key)=>{
+                if(pos[key]<last){
                   delete pos[obj];
                   delete syn[obj];
                 }
@@ -187,7 +192,7 @@ class App extends React.Component{
               pos[eleName]=i;
             }
           }
-          if(syn[eleName]=='|!'){
+          if(syn[eleName]=='|!' || syn[eleName]=='!'){
             if(eleSyn=='&'){
               syn[eleName]=eleSyn;
               pos[eleName]=i;
