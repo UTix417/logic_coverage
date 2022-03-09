@@ -111,7 +111,13 @@ class App extends React.Component{
       return pos[a]-pos[b];
     })
     let workStr='';
-    
+    let map=[{
+      name:'$head',
+      tTo:'$T',//'$T' or index
+      fTo:'$F',//'$F' or index
+    }];
+    let toTIndex=[];
+    let toFIndex=[];
     Object.keys(pos).forEach((key)=>{
       if(workStr==''){
         workStr+=key;
@@ -119,19 +125,57 @@ class App extends React.Component{
         workStr+=syn[key]+key;
       }
       let workType=this.state.solveType;
-      if(workType==1){
+      if(workType==1){// 1条件判定
         if(workStr==''){
-          
+          map[0].name=key;
+          toTIndex.push(0);
+          toFIndex.push(0);
         }else{
           if(syn[key]=='&'){
-
+            map.push({
+              name:key,
+              tTo:'$T',
+              fTo:'$F',
+            });
+            toTIndex.forEach((value)=>{
+              map[value].tTo==map.size()-1;
+            })
+            toTIndex=map.size()-1;
+            toFIndex.push(map.size()-1);
+          }else if(syn[key]=='|!'){
+            map.push({
+              name:key,
+              tTo:'$T',
+              fTo:'$F',
+            });
+            toTIndex.forEach((value)=>{
+              map[value].tTo=map.size()-1;
+            })
+            toTIndex=map.size()-1;
+            toFIndex.push(map.size()-1);
           }else if(syn[key]=='|'){
-
-          }else if(syn[key]=='!&'){
-
-          }else if(syn[key]=='!&'){
-
-          }else
+            map.push({
+              name:key,
+              tTo:'$T',
+              fTo:'$F',
+            });
+            toFIndex.forEach((value)=>{
+              map[value].fTo=map.size()-1;
+            });
+            toFIndex=map.size()-1;
+            toTIndex.push(map.size()-1);
+          }else if(syn[key]=='&!'){
+            map.push({
+              name:key,
+              tTo:'$T',
+              fTo:'$F',
+            });
+            toFIndex.forEach((value)=>{
+              map[value].fTo=map.size()-1;
+            });
+            toFIndex=map.size()-1;
+            toTIndex.push(map.size()-1);
+          }
         }
       }
     })
