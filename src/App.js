@@ -11,6 +11,7 @@ class App extends React.Component{
     this.state = {
       text: "",
       loading: false,
+      solveType: 0,// 1条件判定 2条件组合 3MC/DC
     }
   }
   
@@ -109,8 +110,30 @@ class App extends React.Component{
     pos=Object.keys(pos).sort((a,b)=>{
       return pos[a]-pos[b];
     })
+    let workStr='';
+    
     Object.keys(pos).forEach((key)=>{
-      
+      if(workStr==''){
+        workStr+=key;
+      }else{
+        workStr+=syn[key]+key;
+      }
+      let workType=this.state.solveType;
+      if(workType==1){
+        if(workStr==''){
+          
+        }else{
+          if(syn[key]=='&'){
+
+          }else if(syn[key]=='|'){
+
+          }else if(syn[key]=='!&'){
+
+          }else if(syn[key]=='!&'){
+
+          }else
+        }
+      }
     })
   }
 
