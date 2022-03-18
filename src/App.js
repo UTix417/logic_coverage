@@ -1,8 +1,9 @@
 import './App.css';
 import React from "react";
-import { Input, Button, Typography, notification } from 'antd';
+import { Input, Button, Typography, notification, Mentions, Empty, Card } from 'antd';
 import { SettingFilled, BarChartOutlined } from '@ant-design/icons';
 const { Title } = Typography;
+const { TextArea } = Input;
 
 class App extends React.Component {
 
@@ -13,10 +14,14 @@ class App extends React.Component {
 			loading: false,
 			solveType: 0,// 1条件判定 2条件组合 3MC/DC
 			tureStr:'',
+			resList:[],
 		}
 	}
 
-
+	/**
+	 * 调用方：页面按钮
+	 * 作用：设置页面中的loading状态
+	 */
 	prework = () => {
 		this.setState({
 			loading: true,
@@ -25,6 +30,10 @@ class App extends React.Component {
 		});
 	}
 
+	/**
+	 * 调用方：prework
+	 * 作用：检查输入表达式正确与否，包含有无非法字符、有无合法字符的非法组合（如&&）以及括号是否匹配
+	 */
 	check = () => {
 		let temp = this.state.text;
 		let tempLen = temp.length;
@@ -32,6 +41,7 @@ class App extends React.Component {
 		let kuohaoflag = false;
 		let sysflag = false;
 		temp = temp.replace(/\s/g, "");
+		let testWord=new RegExp(/[a-zA-Z&|!()]/);
 		for (let i = 0; i < tempLen; i++) {
 			if (temp[i] === '(') {
 				tempArray.push(i);
@@ -48,6 +58,10 @@ class App extends React.Component {
 					sysflag = true;
 					break;
 				}
+			}
+			if(!testWord.test(temp[i])){
+				sysflag = true;
+				break;
 			}
 		}
 		if (sysflag) {
@@ -81,6 +95,12 @@ class App extends React.Component {
 		this.divi(temp);
 	}
 
+
+	/**
+	 * 调用方：check
+	 * 作用：区分该表达式有无括号
+	 * @param {string} str 去括号后的表达式
+	 */
 	divi = (str) => {
 		let front = 0;
 		let back = 0;
@@ -104,123 +124,290 @@ class App extends React.Component {
 				return;
 			}
 		}
-		this.makeElementSimpleWithNo(tureStr);
+		this.workWithNo(tureStr);
 	}
 
-	workWithNo = (syn, pos) => {
-		pos = Object.keys(pos).sort((a, b) => {
-			return pos[a] - pos[b];
-		})
-		let workStr = '';
-		let map = [{
-			name: '$head',
-			tTo: '$T',//'$T' or index
-			fTo: '$F',//'$F' or index
-		}];
-		let toTIndex = [];
-		let toFIndex = [];
-		Object.keys(pos).forEach((key) => {
-			if (workStr == '') {
-				workStr += key;
-			} else {
-				workStr += syn[key] + key;
-			}
-			let workType = this.state.solveType;
-			if (workType == 1) {// 1条件判定
-				if (workStr == '') {
-					map[0].name = key;
-					toTIndex.push(0);
-					toFIndex.push(0);
-				} else {
-					if (syn[key] == '&') {
-						map.push({
-							name: key,
-							tTo: '$T',
-							fTo: '$F',
-						});
-						toTIndex.forEach((value) => {
-							map[value].tTo = map.size() - 1;
-						})
-						toTIndex = map.size() - 1;
-						toFIndex.push(map.size() - 1);
-					} else if (syn[key] == '|!') {
-						map.push({
-							name: key,
-							tTo: '$T',
-							fTo: '$F',
-						});
-						toTIndex.forEach((value) => {
-							map[value].tTo = map.size() - 1;
-						})
-						toTIndex = map.size() - 1;
-						toFIndex.push(map.size() - 1);
-					} else if (syn[key] == '|') {
-						map.push({
-							name: key,
-							tTo: '$T',
-							fTo: '$F',
-						});
-						toFIndex.forEach((value) => {
-							map[value].fTo = map.size() - 1;
-						});
-						toFIndex = map.size() - 1;
-						toTIndex.push(map.size() - 1);
-					} else if (syn[key] == '&!') {
-						map.push({
-							name: key,
-							tTo: '$T',
-							fTo: '$F',
-						});
-						toFIndex.forEach((value) => {
-							map[value].fTo = map.size() - 1;
-						});
-						toFIndex = map.size() - 1;
-						toTIndex.push(map.size() - 1);
-					}
-				}
-			}
-		})
-	}
-
-	workWithHave = async (tureStr) => {
-		tureStr = await this.toFormat(tureStr);
-		this.setState({tureStr});
-		//console.log(tureStr,'???');
+	/**
+	 * 调用方：divi
+	 * 作用：进行测试用例生成分流 
+	 * @param {*} tureStr 经过！简化的字符串
+	 */
+	workWithNo = (tureStr) => {
 		if(this.state.solveType==1){
-			let target={};
-			let elements=[];
-			let element='',elememtArea='';
-			let res=[];
-			for(let i=0;i<tureStr;i++){
-				if(tureStr[i]=='|'){
-					target[elememtArea]=[];
-					elements[element]=1;
-					element='';
-					elememtArea='';
-				}else if(tureStr[i]=='&'){
-					elements[element]=1;
-					element='';
-				}else{
-					elememtArea+=tureStr[i];
-					if(tureStr[i]!='!'){
-						element+=tureStr[i];
-					}
-				}
-			}
-			//可能需要化简
-			let tempRes=[];
-			for(let i=0;i<elements.length;i++){
-				tempRes.push(1);
-			}
-			res.push(tempRes);
-			tempRes=[];
-			for(let i=0;i<elements.length;i++){
-				tempRes.push(0);
-			}
-			res.push(tempRes);
+			this.prework1(tureStr);
+		}else if(this.state.solveType==2){
+
+		}else if(this.state.solveType==3){
+			
 		}
 	}
 
+	/**
+	 * 调用方：prework1
+	 * 作用：组织一张图
+	 * @param {{elesyn: string,elename: string}[]} mapdata 字符串获取的顺序节点
+	 */
+	work1 = (mapdata) => {
+		{
+		// pos = Object.keys(pos).sort((a, b) => {
+		// 	return pos[a] - pos[b];
+		// })
+		// let workStr = '';
+		// let map = [{
+		// 	name: '$head',
+		// 	tTo: '$T',//'$T' or index
+		// 	fTo: '$F',//'$F' or index
+		// }];
+		// let toTIndex = [];
+		// let toFIndex = [];
+		// Object.keys(pos).forEach((key) => {
+		// 	if (workStr == '') {
+		// 		workStr += key;
+		// 	} else {
+		// 		workStr += syn[key] + key;
+		// 	}
+		// 	let workType = this.state.solveType;
+		// 	if (workType == 1) {// 1条件判定
+		// 		if (workStr == '') {
+		// 			map[0].name = key;
+		// 			toTIndex.push(0);
+		// 			toFIndex.push(0);
+		// 		} else {
+		// 			if (syn[key] == '&') {
+		// 				map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toTIndex.forEach((value) => {
+		// 					map[value].tTo = map.size() - 1;
+		// 				})
+		// 				toTIndex = map.size() - 1;
+		// 				toFIndex.push(map.size() - 1);
+		// 			} else if (syn[key] == '|!') {
+		// 				map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toTIndex.forEach((value) => {
+		// 					map[value].tTo = map.size() - 1;
+		// 				})
+		// 				toTIndex = map.size() - 1;
+		// 				toFIndex.push(map.size() - 1);
+		// 			} else if (syn[key] == '|') {
+		// 				map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toFIndex.forEach((value) => {
+		// 					map[value].fTo = map.size() - 1;
+		// 				});
+		// 				toFIndex = map.size() - 1;
+		// 				toTIndex.push(map.size() - 1);
+		// 			} else if (syn[key] == '&!') {
+		// 				map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toFIndex.forEach((value) => {
+		// 					map[value].fTo = map.size() - 1;
+		// 				});
+		// 				toFIndex = map.size() - 1;
+		// 				toTIndex.push(map.size() - 1);
+		// 			}
+		// 		}
+		// 	}
+		// })
+		}
+		let map = [];
+		/**
+		 * 	map[i]={
+				name: '$head',
+				tTo: '$T',//'$T' or index
+				fTo: '$F',//'$F' or index
+			}
+		 */
+		let toTIndex = [];
+		let toFIndex = [];
+		for(let i=0;i<mapdata.length;i++){
+			if (mapdata[i].elesyn == '&') {
+				map.push({
+					name: mapdata[i].elename,
+					tTo: '$T',
+					fTo: '$F',
+				});
+				toTIndex.forEach((value) => {
+					map[value].tTo = map.size() - 1;
+				})
+				toTIndex = map.size() - 1;
+				toFIndex.push(map.size() - 1);
+			} else if (mapdata[i].elesyn == '|!') {
+				map.push({
+					name: mapdata[i].elename,
+					tTo: '$T',
+					fTo: '$F',
+				});
+				toTIndex.forEach((value) => {
+					map[value].tTo = map.size() - 1;
+				})
+				toTIndex = map.size() - 1;
+				toFIndex.push(map.size() - 1);
+			} else if (mapdata[i].elesyn == '|') {
+				map.push({
+					name: mapdata[i].elename,
+					tTo: '$T',
+					fTo: '$F',
+				});
+				toFIndex.forEach((value) => {
+					map[value].fTo = map.size() - 1;
+				});
+				toFIndex = map.size() - 1;
+				toTIndex.push(map.size() - 1);
+			} else if (mapdata[i].elesyn == '&!') {
+				map.push({
+					name: mapdata[i].elename,
+					tTo: '$T',
+					fTo: '$F',
+				});
+				toFIndex.forEach((value) => {
+					map[value].fTo = map.size() - 1;
+				});
+				toFIndex = map.size() - 1;
+				toTIndex.push(map.size() - 1);
+			}
+		}
+		this.getPathFromMap(map,0,{}).then(()=>{
+			this.setState({
+				loading: false,
+			})
+		});
+	}
+
+	/**
+	 * 调用方：work1、getPathFromMap(递归)
+	 * 作用：dfs求测试用例
+	 * @param {{
+				name: '$head',
+				tTo: '$T',//'$T' or index
+				fTo: '$F',//'$F' or index
+			}} map 图
+	 * @param {Number} nowindex 当前节点
+	 * @param {{变量名:boolean, $res:boolean}} nowPath  现在的变量情况
+	 */
+	getPathFromMap = async (map, nowindex, nowPath)=> {
+		let tempPath = {};
+		if(tempPath[map[nowindex].name]=='T'){
+			this.getPathFromMap(map,map[nowindex].tTo,nowPath);
+			return;
+		}
+		if(tempPath[map[nowindex].name]=='F'){
+			this.getPathFromMap(map,map[nowindex].tFo,nowPath);
+			return;
+		}
+		if(map[nowindex].tTo=='$T'){
+			tempPath=nowPath;
+			tempPath[map[nowindex].name]='T';
+			tempPath['$res']='T';
+			this.setState({
+				resList: this.state.resList.push(tempPath)
+			});
+		}else{
+			tempPath=nowPath;
+			tempPath[map[nowindex].name]='T';
+			this.getPathFromMap(map,map[nowindex].tTo,tempPath);
+		}
+		if(map[nowindex].fTo=='$F'){
+			tempPath=nowPath;
+			tempPath[map[nowindex].name]='F';
+			tempPath['$res']='F';
+			this.setState({
+				resList: this.state.resList.push(tempPath)
+			});
+		}else{
+			tempPath=nowPath;
+			tempPath[map[nowindex].name]='F';
+			this.getPathFromMap(map,map[nowindex].fTo,tempPath);
+		}
+	}
+
+	/**
+	 * 调用方：divi
+	 * 作用：递归去除括号后进行测试用例生成分流 
+	 * @param {string} tureStr 经过！简化的字符串
+	 */
+	workWithHave = async (tureStr) => {
+		tureStr = await this.toFormat(tureStr);
+		this.setState({tureStr});
+		// console.log(this.state)
+		//console.log(tureStr,'???');
+		if(this.state.solveType==1){
+			this.prework1(tureStr);
+			{
+				// let target={};// &的部分
+				// let elements=[];// 变量
+				// let element='',elememtArea='';
+				// let res=[];// 测试用例
+				// for(let i=0;i<tureStr;i++){
+				// 	if(tureStr[i]=='|'){
+				// 		target[elememtArea]=[];
+				// 		elements[element]=1;
+				// 		element='';
+				// 		elememtArea='';
+				// 	}else if(tureStr[i]=='&'){
+				// 		elements[element]=1;
+				// 		element='';
+				// 	}else{
+				// 		elememtArea+=tureStr[i];
+				// 		if(tureStr[i]!='!'){
+				// 			element+=tureStr[i];
+				// 		}
+				// 	}
+				// }
+				// //可能需要化简
+				// let tempRes=[];
+				// for(let i=0;i<elements.length;i++){
+				// 	tempRes.push(1);
+				// }
+				// res.push(tempRes);
+				// tempRes=[];
+				// for(let i=0;i<elements.length;i++){
+				// 	tempRes.push(0);
+				// }
+				// res.push(tempRes);
+				// Object.keys(target).forEach((key)=>{//$$$ 如果想增加一些测试用例
+				// 	let isNotFlag=false;
+				// 	let innerElement='';
+				// 	for(let i=0;i<key.length;i++){
+				// 		if(key[i]=='!'){
+				// 			isNotFlag=true;
+				// 		}else if(key[i]=='&'){
+
+				// 			isNotFlag=false;
+				// 			innerElement='';
+				// 		}else{
+				// 			innerElement+=key[i];
+				// 		}
+				// 		if(i==key.length-1){
+
+				// 		}
+				// 	}
+				// })
+			}
+		}else if(this.state.solveType==2){
+
+		}else if(this.state.solveType==3){
+
+		}
+	}
+
+	/**
+	 * 调用方：workWithHave、toFormat(递归)
+	 * 作用：递归去除括号
+	 * @param {string} str 当前处理的字符串字串 
+	 */
 	toFormat = async (str) => {
 		let startIndex = -1;
 		let num = [];
@@ -291,7 +478,7 @@ class App extends React.Component {
 		}
 		let elementStar=0;
 		let inFlag=false;
-		//console.log(str,'递归结束');
+		// console.log(str,'递归结束');
 		for(let i=0;i<str.length;i++){
 			if(str[i]=='['){
 				inFlag=true;
@@ -317,7 +504,7 @@ class App extends React.Component {
 		let deleteStart = -1;
 		let andFlag = false;
 		// let emptyFlag = false;
-		//console.log(str,'括号内运算')
+		// console.log(str,'括号内运算')
 		for (let i = 0; i < str.length; i++) {
 			if (str[i] == '|' || str[i] == '&') {
 				lastSyn = str[i];
@@ -342,6 +529,7 @@ class App extends React.Component {
 				// 	str = str.substring(0, deleteStart - 1) + str.substring(deleteStart, i)+str.substring(i+1,str.length);
 				// 	i-=2;
 				// }
+				// console.log(str,"去括号运算中")
 				if(andFlag) {
 					//deleteStart-2 是乘法的结束
 					let inElement = [];
@@ -378,42 +566,52 @@ class App extends React.Component {
 							tempElement = '';
 						}
 					}
-					//console.log(inElement,beforeElement)
+					// console.log(inElement,beforeElement)
 					let resStr='';
 					for (let x = 0;x<beforeElement.length;x++){
 						for(let y=0;y<inElement.length;y++){
 							let newelement=beforeElement[x]+'&'+inElement[y];
+							// console.log(beforeElement[x],inElement[y],"???")
 							let elementShowRecord={};
 							let element='';
 							let elementStart=-1;
 							for(let j=0;j<newelement.length;j++){
 								if(newelement[j]=='&'||j==newelement.length-1){
+									if(j==newelement.length-1){
+										element+=newelement[j];
+									}else{
+										elementStart=j;
+									}
+									// console.log(newelement[j],'>>>>',element,'>>>>>',elementShowRecord[element])
 									if(!elementShowRecord[element]){
 										elementShowRecord[element]=1;
 									}else{
 										let copynewelement=newelement;
+										// console.log(copynewelement,'------',elementStart,copynewelement.substring(0,elementStart))
 										newelement=copynewelement.substring(0,elementStart);
 										if(j!=copynewelement.length-1){
 											newelement+=copynewelement.substring(j+1,copynewelement.length);
 										}
 									}
-									if(resStr.length==0){
-										resStr+=newelement;
-									}else if(newelement.length>0){
-										resStr=resStr+'|'+newelement;
-									}
 									element='';
-									elementStart=-1;
 								}else{
-									elementStart=i;
+									element+=newelement[j];
 								}
 							}
+							if(resStr.length==0){
+								resStr+=newelement;
+							}else if(newelement.length>0){
+								resStr=resStr+'|'+newelement;
+							}
+							// console.log(resStr,'!!!',newelement)
 						}
 					}
 					if(i==str.length-1){
-						str=resStr;
+						str='['+resStr+']';
+						i+=2;
 					}else{
-						str=resStr+str.substring(i+1,str.length);
+						str='['+resStr+']'+str.substring(i+1,str.length);
+						i+=2;
 					}
 					andFlag = false;
 				}
@@ -425,230 +623,346 @@ class App extends React.Component {
 		return str;
 	}
 
-	makeElementSimpleWithNo = (tureStr) => {//这里的消除逻辑有问题，要重新推导
-		let syn = {};
-		let pos = {};
-		for (let i = 0; i < tureStr.length;) {
-			let eleName = '';
-			let eleSyn = '';
-			let lasts = [];//用来维护算符段终点
-			let notCount = 0;
-			if (tureStr[i] === '|' || tureStr === '&') {
-				if (eleSyn != tureStr[i]) {
-					lasts.push(i);
-				}
-				eleSyn = tureStr[i];
-			}
-			while (true) {
-				if (tureStr[i] === '!') {
-					notCount++;
-					if (tureStr === '|' || tureStr === '&' || i === tureStr.length) {
-						break;
-					} else if (eleName.length) {
-						this.setState({
-							loading: false,
-						}, () => {
-							notification['error']({
-								message: '您输入的表达式有算符错误，请检查',
-								description: null,
-								onClick: () => {
+	/**
+	 * 调用方：workWithNo、workWithHave
+	 * 作用：生成mapdata
+	 * @param {string} tureStr 经过！简化的字符串
+	 */
+	prework1 = (tureStr) => {//这里的消除逻辑有问题，要重新推导
+		{
+		// let syn = {};
+		// let pos = {};
+		// for (let i = 0; i < tureStr.length;) {
+		// 	let eleName = '';
+		// 	let eleSyn = '';
+		// 	let lasts = [];//用来维护算符段终点
+		// 	let notCount = 0;
+		// 	if (tureStr[i] === '|' || tureStr === '&') {
+		// 		if (eleSyn != tureStr[i]) {
+		// 			lasts.push(i);
+		// 		}
+		// 		eleSyn = tureStr[i];
+		// 	}
+		// 	while (true) {
+		// 		if (tureStr[i] === '!') {
+		// 			notCount++;
+		// 			if (tureStr[i] === '|' || tureStr[i] === '&' || i === tureStr.length) {
+		// 				break;
+		// 			} else if (eleName.length) {
+		// 				this.setState({
+		// 					loading: false,
+		// 				}, () => {
+		// 					notification['error']({
+		// 						message: '您输入的表达式有算符错误，请检查',
+		// 						description: null,
+		// 						onClick: () => {
 
-								},
-							});
-						});
-						return;
-					}
-				} else {
-					eleName += tureStr[i];
-				}
-				i++;
-			}
-			if (notCount & 1) {
-				eleSyn += '!';
-			}
-			if (syn[eleName]) {
-				if (syn[eleName] === eleSyn) {
+		// 						},
+		// 					});
+		// 				});
+		// 				return;
+		// 			}
+		// 		} else {
+		// 			eleName += tureStr[i];
+		// 		}
+		// 		i++;
+		// 	}
+		// 	if (notCount & 1) {
+		// 		eleSyn += '!';
+		// 	}
+		// 	{// if (syn[eleName]) {
+		// 	// 	if (syn[eleName] === eleSyn) {
 
-				} else {
-					if (syn[eleName] === '|' || syn[eleName] === '') {
-						if (eleSyn === '&!') {
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|!') {
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '&') {
-							let last = 0;
-							for (let j = 0; j < lasts.length; j++) {
-								if (lasts[j] > pos[eleName]) {
-									last = lasts[j];
-								}
-							}
-							Object.keys(pos).forEach((key) => {
-								if (pos[key] < last) {
-									delete pos[key];
-									delete syn[key];
-								}
-							})
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|') {
-							pos[eleName] = i;
-						}
-					}
-					if (syn[eleName] === '|!' || syn[eleName] === '!') {
-						if (eleSyn === '&') {
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|') {
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '&!') {
-							let last = 0;
-							for (let j = 0; j < lasts.length; j++) {
-								if (lasts[j] > pos[eleName]) {
-									last = lasts[j];
-								}
-							}
-							Object.keys(pos).forEach((key) => {
-								if (pos[key] < last) {
-									delete pos[key];
-									delete syn[key];
-								}
-							})
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|!') {
-							pos[eleName] = i;
-						}
-					}
-					if (syn[eleName] === '&') {
-						if (eleSyn === '&!') {
-							let last = 0;
-							for (let j = 0; j < lasts.length; j++) {
-								if (lasts[j] > pos[eleName]) {
-									last = lasts[j];
-								}
-							}
-							Object.keys(pos).forEach((key) => {
-								if (pos[key] < last) {
-									delete pos[key];
-									delete syn[key];
-								}
-							})
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|!') {
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '&') {
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|') {
-							let last = 0;
-							for (let j = 0; j < lasts.length; j++) {
-								if (lasts[j] > pos[eleName]) {
-									last = lasts[j];
-								}
-							}
-							Object.keys(pos).forEach((key) => {
-								if (pos[key] < last) {
-									delete pos[key];
-									delete syn[key];
-								}
-							})
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-					}
-					if (syn[eleName] === '&!') {
-						if (eleSyn === '&') {
-							let last = 0;
-							for (let j = 0; j < lasts.length; j++) {
-								if (lasts[j] > pos[eleName]) {
-									last = lasts[j];
-								}
-							}
-							Object.keys(pos).forEach((key) => {
-								if (pos[key] < last) {
-									delete pos[key];
-									delete syn[key];
-								}
-							})
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|') {
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-						if (eleSyn === '&!') {
-							pos[eleName] = i;
-						}
-						if (eleSyn === '|!') {
-							let last = 0;
-							for (let j = 0; j < lasts.length; j++) {
-								if (lasts[j] > pos[eleName]) {
-									last = lasts[j];
-								}
-							}
-							Object.keys(pos).forEach((key) => {
-								if (pos[key] < last) {
-									delete pos[key];
-									delete syn[key];
-								}
-							})
-							syn[eleName] = eleSyn;
-							pos[eleName] = i;
-						}
-					}
-				}
-			} else {
-				syn[eleName] = eleSyn;
-				pos[eleName] = i;
+		// 	// 	} else {
+		// 	// 		if (syn[eleName] === '|' || syn[eleName] === '') {
+		// 	// 			if (eleSyn === '&!') {
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|!') {
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '&') {
+		// 	// 				let last = 0;
+		// 	// 				for (let j = 0; j < lasts.length; j++) {
+		// 	// 					if (lasts[j] > pos[eleName]) {
+		// 	// 						last = lasts[j];
+		// 	// 					}
+		// 	// 				}
+		// 	// 				Object.keys(pos).forEach((key) => {
+		// 	// 					if (pos[key] < last) {
+		// 	// 						delete pos[key];
+		// 	// 						delete syn[key];
+		// 	// 					}
+		// 	// 				})
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|') {
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 		}
+		// 	// 		if (syn[eleName] === '|!' || syn[eleName] === '!') {
+		// 	// 			if (eleSyn === '&') {
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|') {
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '&!') {
+		// 	// 				let last = 0;
+		// 	// 				for (let j = 0; j < lasts.length; j++) {
+		// 	// 					if (lasts[j] > pos[eleName]) {
+		// 	// 						last = lasts[j];
+		// 	// 					}
+		// 	// 				}
+		// 	// 				Object.keys(pos).forEach((key) => {
+		// 	// 					if (pos[key] < last) {
+		// 	// 						delete pos[key];
+		// 	// 						delete syn[key];
+		// 	// 					}
+		// 	// 				})
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|!') {
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 		}
+		// 	// 		if (syn[eleName] === '&') {
+		// 	// 			if (eleSyn === '&!') {
+		// 	// 				let last = 0;
+		// 	// 				for (let j = 0; j < lasts.length; j++) {
+		// 	// 					if (lasts[j] > pos[eleName]) {
+		// 	// 						last = lasts[j];
+		// 	// 					}
+		// 	// 				}
+		// 	// 				Object.keys(pos).forEach((key) => {
+		// 	// 					if (pos[key] < last) {
+		// 	// 						delete pos[key];
+		// 	// 						delete syn[key];
+		// 	// 					}
+		// 	// 				})
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|!') {
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '&') {
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|') {
+		// 	// 				let last = 0;
+		// 	// 				for (let j = 0; j < lasts.length; j++) {
+		// 	// 					if (lasts[j] > pos[eleName]) {
+		// 	// 						last = lasts[j];
+		// 	// 					}
+		// 	// 				}
+		// 	// 				Object.keys(pos).forEach((key) => {
+		// 	// 					if (pos[key] < last) {
+		// 	// 						delete pos[key];
+		// 	// 						delete syn[key];
+		// 	// 					}
+		// 	// 				})
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 		}
+		// 	// 		if (syn[eleName] === '&!') {
+		// 	// 			if (eleSyn === '&') {
+		// 	// 				let last = 0;
+		// 	// 				for (let j = 0; j < lasts.length; j++) {
+		// 	// 					if (lasts[j] > pos[eleName]) {
+		// 	// 						last = lasts[j];
+		// 	// 					}
+		// 	// 				}
+		// 	// 				Object.keys(pos).forEach((key) => {
+		// 	// 					if (pos[key] < last) {
+		// 	// 						delete pos[key];
+		// 	// 						delete syn[key];
+		// 	// 					}
+		// 	// 				})
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|') {
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '&!') {
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 			if (eleSyn === '|!') {
+		// 	// 				let last = 0;
+		// 	// 				for (let j = 0; j < lasts.length; j++) {
+		// 	// 					if (lasts[j] > pos[eleName]) {
+		// 	// 						last = lasts[j];
+		// 	// 					}
+		// 	// 				}
+		// 	// 				Object.keys(pos).forEach((key) => {
+		// 	// 					if (pos[key] < last) {
+		// 	// 						delete pos[key];
+		// 	// 						delete syn[key];
+		// 	// 					}
+		// 	// 				})
+		// 	// 				syn[eleName] = eleSyn;
+		// 	// 				pos[eleName] = i;
+		// 	// 			}
+		// 	// 		}
+		// 	// 	}
+		// 	// } else {
+		// 	// 	syn[eleName] = eleSyn;
+		// 	// 	pos[eleName] = i;
+		// 	// }
+		// 	}
+		// }
+		}
+		let mapdata=[];
+		let elename='',elesyn='';
+		for(let i=0;i<tureStr;i++){
+			if(tureStr[i]=='|'||tureStr[i]=='&'||tureStr[i]=='!'){
+				elesyn+=tureStr[i];
+				mapdata[mapdata.length-1]['elename']=elename;
+				elename='';
+			}else{
+				elename+=tureStr[i];
+				mapdata.push({elesyn});
+				elesyn='';
 			}
 		}
-		this.workWithNo(syn, pos)
+		this.work1(mapdata)
 	}
 
+	/**
+	 * 调用方：ant组件调用
+	 * 作用：绑定输入字符串
+	 * @param {ReactDOM} e 输入事件
+	 */
 	input = e => {
 		this.setState({
 			text: e.target.value,
 		});
 	}
 
+	/**
+	 * 调用方：render
+	 * 作用：更新页面中的化简情况
+	 */
+	readTureStr(){
+		// console.log(this.state.tureStr)
+		return this.state.tureStr;
+	}
+
+	/**
+	 * 调用方：render
+	 * 作用：更新页面中的测试用例情况
+	 */
+	readResList(){
+		return this.state.resList;
+	}
+
 	render() {
 		return (
-			<div>
-				<div className="App">
-					<Title className="title">
-						<BarChartOutlined />
-						<span style={{ fontSize: '30px', marginLeft: '10px' }}>布尔表达式的逻辑覆盖</span>
-					</Title>
-					<div className="input-box">
-						<Input className="input"
-							value={this.state.text}
-							onChange={this.input.bind()}
-							placeholder="Basic usage"
-						/>
-						<Button className="button"
-							type="primary"
-							icon={<SettingFilled />}
-							onClick={this.prework.bind()}
-							loading={this.state.loading}
-						/>
+			<>
+				<Title className="title">
+					<BarChartOutlined />
+					<span style={{ fontSize: '30px', marginLeft: '10px' }}>布尔表达式的逻辑覆盖</span>
+				</Title>
+				<div style={{paddingLeft: '10%',paddingRight: '10%'}}>
+					<div className="work-box">
+						<div className="input-box">
+							<Card title="数据操作" 
+								headStyle={{
+									background:'#66ccff',
+									borderLeft:'1px solid #000',
+									borderRight:'1px solid #000',
+									borderTop:'1px solid #000',
+								}} 
+								bodyStyle={{ 
+									borderLeft:'1px solid #000',
+									borderRight:'1px solid #000',
+									borderBottom:'1px solid #000',
+								}}
+							>
+								<TextArea className="input"
+									value={this.state.text}
+									onChange={this.input.bind()}
+									placeholder="Basic usage"
+									rows={4}
+								/>
+								<div className="button-box">
+									<Button className="button"
+										type="primary"
+										onClick={this.prework.bind()}
+										loading={this.state.loading}
+									>条件/判定</Button>
+									<Button className="button"
+										type="primary"
+										onClick={this.prework.bind()}
+										loading={this.state.loading}
+									>条件组合</Button>
+									<Button className="button"
+										type="primary"
+										onClick={this.prework.bind()}
+										loading={this.state.loading}
+									>MC/DC</Button>	
+								</div>
+							</Card>
+						</div>
+						<div className="showInfo-box">
+							<Card title="分析数据" 
+								headStyle={{
+									background:'#66ccff',
+									borderLeft:'1px solid #000',
+									borderRight:'1px solid #000',
+									borderTop:'1px solid #000',
+								}} 
+								bodyStyle={{ 
+									borderLeft:'1px solid #000',
+									borderRight:'1px solid #000',
+									borderBottom:'1px solid #000',
+								}}
+							>
+								{(
+									this.readTureStr().length>0?
+										(<div></div>):
+										(<div className='border'>
+											<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+										</div>)
+								)}
+							</Card>
+						</div>
 					</div>
-					
+					<div className="display-box">
+					<Card title="测试用例" 
+						headStyle={{
+							background:'#66ccff',
+							borderLeft:'1px solid #000',
+							borderRight:'1px solid #000',
+							borderTop:'1px solid #000',
+						}} 
+						bodyStyle={{ 
+							borderLeft:'1px solid #000',
+							borderRight:'1px solid #000',
+							borderBottom:'1px solid #000',
+						}}
+					>
+						{(
+							this.readResList().length>0?
+								(<div></div>):
+								(<div className='border'>
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+								</div>)
+						)}
+					</Card>
 				</div>
-			</div>
+				</div>
+			</>
 		);
 	}
 }
