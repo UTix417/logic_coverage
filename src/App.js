@@ -1,8 +1,8 @@
 import './App.css';
 import React from "react";
-import { Input, Button, Typography, notification, Mentions, Empty, Card } from 'antd';
-import { SettingFilled, BarChartOutlined } from '@ant-design/icons';
-const { Title } = Typography;
+import { Input, Button, Typography, notification, Mentions, Empty, Card, Spin } from 'antd';
+import { LoadingOutlined , BarChartOutlined } from '@ant-design/icons';
+const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 class App extends React.Component {
@@ -22,9 +22,10 @@ class App extends React.Component {
 	 * 调用方：页面按钮
 	 * 作用：设置页面中的loading状态
 	 */
-	prework = () => {
+	prework = (solveType) => {
 		this.setState({
 			loading: true,
+			solveType,
 		}, () => {
 			this.check();
 		});
@@ -863,7 +864,18 @@ class App extends React.Component {
 	 * 作用：更新页面中的测试用例情况
 	 */
 	readResList(){
+		if(this.state.resList.length){
+
+		}
 		return this.state.resList;
+	}
+
+	/**
+	 * 调用方：render
+	 * 作用：更新页面中的算法完成与否 
+	 */
+	readLoadingStatus(){
+		return this.state.loading;
 	}
 
 	render() {
@@ -889,27 +901,32 @@ class App extends React.Component {
 									borderBottom:'1px solid #000',
 								}}
 							>
+								<Text code>变量名仅支持英文字母</Text>
+								<Text code>算符仅支持 & | ! ( )</Text>
 								<TextArea className="input"
 									value={this.state.text}
-									onChange={this.input.bind()}
+									onChange={this.input.bind(this)}
 									placeholder="Basic usage"
 									rows={4}
 								/>
 								<div className="button-box">
 									<Button className="button"
 										type="primary"
-										onClick={this.prework.bind()}
-										loading={this.state.loading}
+										disabled={this.state.loading&&this.state.solveType!=1}
+										onClick={this.prework.bind(this,1)}
+										loading={this.state.loading&&this.state.solveType==1}
 									>条件/判定</Button>
 									<Button className="button"
 										type="primary"
-										onClick={this.prework.bind()}
-										loading={this.state.loading}
+										disabled={this.state.loading&&this.state.solveType!=2}
+										onClick={this.prework.bind(this,2)}
+										loading={this.state.loading&&this.state.solveType==2}
 									>条件组合</Button>
 									<Button className="button"
 										type="primary"
-										onClick={this.prework.bind()}
-										loading={this.state.loading}
+										disabled={this.state.loading&&this.state.solveType!=3}
+										onClick={this.prework.bind(this,3)}
+										loading={this.state.loading&&this.state.solveType==3}
 									>MC/DC</Button>	
 								</div>
 							</Card>
@@ -929,11 +946,18 @@ class App extends React.Component {
 								}}
 							>
 								{(
-									this.readTureStr().length>0?
-										(<div></div>):
+									(this.readResList().length>0 || !this.readLoadingStatus()) &&
 										(<div className='border'>
 											<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 										</div>)
+								)}
+								{(
+									this.readLoadingStatus() &&
+									(
+										<div style={{textAlign: 'center'}}>
+											<Spin indicator={<LoadingOutlined style={{ fontSize: 60 }} spin />} />
+										</div>
+									)
 								)}
 							</Card>
 						</div>
@@ -953,11 +977,18 @@ class App extends React.Component {
 						}}
 					>
 						{(
-							this.readResList().length>0?
-								(<div></div>):
+							(this.readResList().length>0 || !this.readLoadingStatus()) &&
 								(<div className='border'>
 									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 								</div>)
+						)}
+						{(
+							this.readLoadingStatus() &&
+							(
+								<div style={{textAlign: 'center'}}>
+									<Spin indicator={<LoadingOutlined style={{ fontSize: 60 }} spin />} />
+								</div>
+							)
 						)}
 					</Card>
 				</div>
