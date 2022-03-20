@@ -1,6 +1,6 @@
 import './App.css';
 import React from "react";
-import { Input, Button, Typography, notification, Mentions, Empty, Card, Spin } from 'antd';
+import { Input, Button, Typography, notification, Table, Empty, Card, Spin } from 'antd';
 import { LoadingOutlined , BarChartOutlined } from '@ant-design/icons';
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -14,15 +14,17 @@ class App extends React.Component {
 			loading: false,
 			solveType: 0,// 1条件判定 2条件组合 3MC/DC
 			tureStr:'',
-			resList:[],
 		}
 	}
+
+	resList = [];
 
 	/**
 	 * 调用方：页面按钮
 	 * 作用：设置页面中的loading状态
 	 */
 	prework = (solveType) => {
+		this.resList=[];
 		this.setState({
 			loading: true,
 			solveType,
@@ -181,10 +183,10 @@ class App extends React.Component {
 		// 					fTo: '$F',
 		// 				});
 		// 				toTIndex.forEach((value) => {
-		// 					map[value].tTo = map.size() - 1;
+		// 					map[value].tTo = map.length - 1;
 		// 				})
-		// 				toTIndex = map.size() - 1;
-		// 				toFIndex.push(map.size() - 1);
+		// 				toTIndex = map.length - 1;
+		// 				toFIndex.push(map.length - 1);
 		// 			} else if (syn[key] == '|!') {
 		// 				map.push({
 		// 					name: key,
@@ -192,10 +194,10 @@ class App extends React.Component {
 		// 					fTo: '$F',
 		// 				});
 		// 				toTIndex.forEach((value) => {
-		// 					map[value].tTo = map.size() - 1;
+		// 					map[value].tTo = map.length - 1;
 		// 				})
-		// 				toTIndex = map.size() - 1;
-		// 				toFIndex.push(map.size() - 1);
+		// 				toTIndex = map.length - 1;
+		// 				toFIndex.push(map.length - 1);
 		// 			} else if (syn[key] == '|') {
 		// 				map.push({
 		// 					name: key,
@@ -203,10 +205,10 @@ class App extends React.Component {
 		// 					fTo: '$F',
 		// 				});
 		// 				toFIndex.forEach((value) => {
-		// 					map[value].fTo = map.size() - 1;
+		// 					map[value].fTo = map.length - 1;
 		// 				});
-		// 				toFIndex = map.size() - 1;
-		// 				toTIndex.push(map.size() - 1);
+		// 				toFIndex = map.length - 1;
+		// 				toTIndex.push(map.length - 1);
 		// 			} else if (syn[key] == '&!') {
 		// 				map.push({
 		// 					name: key,
@@ -214,10 +216,10 @@ class App extends React.Component {
 		// 					fTo: '$F',
 		// 				});
 		// 				toFIndex.forEach((value) => {
-		// 					map[value].fTo = map.size() - 1;
+		// 					map[value].fTo = map.length - 1;
 		// 				});
-		// 				toFIndex = map.size() - 1;
-		// 				toTIndex.push(map.size() - 1);
+		// 				toFIndex = map.length - 1;
+		// 				toTIndex.push(map.length - 1);
 		// 			}
 		// 		}
 		// 	}
@@ -241,10 +243,10 @@ class App extends React.Component {
 					fTo: '$F',
 				});
 				toTIndex.forEach((value) => {
-					map[value].tTo = map.size() - 1;
+					map[value].tTo = map.length - 1;
 				})
-				toTIndex = map.size() - 1;
-				toFIndex.push(map.size() - 1);
+				toTIndex = [map.length - 1];
+				toFIndex.push(map.length - 1);
 			} else if (mapdata[i].elesyn == '|!') {
 				map.push({
 					name: mapdata[i].elename,
@@ -252,10 +254,10 @@ class App extends React.Component {
 					fTo: '$F',
 				});
 				toTIndex.forEach((value) => {
-					map[value].tTo = map.size() - 1;
+					map[value].tTo = map.length - 1;
 				})
-				toTIndex = map.size() - 1;
-				toFIndex.push(map.size() - 1);
+				toTIndex = [map.length - 1];
+				toFIndex.push(map.length - 1);
 			} else if (mapdata[i].elesyn == '|') {
 				map.push({
 					name: mapdata[i].elename,
@@ -263,10 +265,10 @@ class App extends React.Component {
 					fTo: '$F',
 				});
 				toFIndex.forEach((value) => {
-					map[value].fTo = map.size() - 1;
+					map[value].fTo = map.length - 1;
 				});
-				toFIndex = map.size() - 1;
-				toTIndex.push(map.size() - 1);
+				toFIndex = [map.length - 1];
+				toTIndex.push(map.length - 1);
 			} else if (mapdata[i].elesyn == '&!') {
 				map.push({
 					name: mapdata[i].elename,
@@ -274,10 +276,10 @@ class App extends React.Component {
 					fTo: '$F',
 				});
 				toFIndex.forEach((value) => {
-					map[value].fTo = map.size() - 1;
+					map[value].fTo = map.length - 1;
 				});
-				toFIndex = map.size() - 1;
-				toTIndex.push(map.size() - 1);
+				toFIndex = [map.length - 1];
+				toTIndex.push(map.length - 1);
 			}
 		}
 		this.getPathFromMap(map,0,{}).then(()=>{
@@ -300,11 +302,14 @@ class App extends React.Component {
 	 */
 	getPathFromMap = async (map, nowindex, nowPath)=> {
 		let tempPath = {};
-		if(tempPath[map[nowindex].name]=='T'){
+		if(map.length==0){
+			return;
+		}
+		if(nowPath[map[nowindex].name]=='T'){
 			this.getPathFromMap(map,map[nowindex].tTo,nowPath);
 			return;
 		}
-		if(tempPath[map[nowindex].name]=='F'){
+		if(nowPath[map[nowindex].name]=='F'){
 			this.getPathFromMap(map,map[nowindex].tFo,nowPath);
 			return;
 		}
@@ -312,9 +317,14 @@ class App extends React.Component {
 			tempPath=nowPath;
 			tempPath[map[nowindex].name]='T';
 			tempPath['$res']='T';
-			this.setState({
-				resList: this.state.resList.push(tempPath)
-			});
+			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+			// let tempList=[...this.state.resList];
+			// console.log(this.resList,"??",tempPath)
+			// tempList.push(JSON.parse(JSON.stringify(tempPath)));
+			// console.log(tempList,"!!",tempPath)
+			// this.setState({
+			// 	resList: tempList
+			// });
 		}else{
 			tempPath=nowPath;
 			tempPath[map[nowindex].name]='T';
@@ -324,9 +334,14 @@ class App extends React.Component {
 			tempPath=nowPath;
 			tempPath[map[nowindex].name]='F';
 			tempPath['$res']='F';
-			this.setState({
-				resList: this.state.resList.push(tempPath)
-			});
+			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+			// let tempList=[...this.state.resList];
+			// console.log(this.resList,"??",tempPath)
+			// tempList.push(JSON.parse(JSON.stringify(tempPath)));
+			// console.log(tempList,"!!",tempPath)
+			// this.setState({
+			// 	resList: tempList
+			// });
 		}else{
 			tempPath=nowPath;
 			tempPath[map[nowindex].name]='F';
@@ -824,8 +839,8 @@ class App extends React.Component {
 		// }
 		}
 		let mapdata=[];
-		let elename='',elesyn='';
-		for(let i=0;i<tureStr;i++){
+		let elename='',elesyn='&';
+		for(let i=0;i<tureStr.length;i++){
 			if(tureStr[i]=='|'||tureStr[i]=='&'||tureStr[i]=='!'){
 				elesyn+=tureStr[i];
 				mapdata[mapdata.length-1]['elename']=elename;
@@ -834,6 +849,9 @@ class App extends React.Component {
 				elename+=tureStr[i];
 				mapdata.push({elesyn});
 				elesyn='';
+			}
+			if(i==tureStr.length-1){
+				mapdata[mapdata.length-1]['elename']=elename;
 			}
 		}
 		this.work1(mapdata)
@@ -864,10 +882,67 @@ class App extends React.Component {
 	 * 作用：更新页面中的测试用例情况
 	 */
 	readResList(){
-		if(this.state.resList.length){
+		if(this.resList.length){
+			let children=[];
+			let maxIndex=0;
+			let maxLength=0;
+			for(let i=0;i<this.resList.length;i++){
+				let tempPath=this.resList[i];
+				if(maxLength<Object.keys(tempPath).length){
+					maxLength=Object.keys(tempPath).length;
+					maxIndex=i;
+				}
+			}
+			Object.keys(this.resList[maxIndex]).forEach((key)=>{
+				if(key!='$res'){
+					children.push({
+						title:`${key}`,
+						dataIndex:`${key}`,
+						key: `${key}`,
+						width: 20,
+					})
+				}
+			})
+			const columns = [
+				{
+					title:'表达式结果',
+					dataIndex: '$res',
+    				key: '$res',
+					width: 10,
+					fixed: 'left',
+				},
+				{
+					title: '变量名',
+					children,
+				},
+			];
+			let data=[];
+			for(let i=0;i<this.resList.length;i++){
+				data.push({
+					key:i,
+					...this.resList[i]
+				})
+			}
+			return (
+			<Table 
+				onRow={record => {
+					return {
+					  onMouseEnter: () => {
+						console.log(record)
+					  }, // 鼠标移入行
+					  onMouseLeave: () => {
 
+					  },
+					};
+				  }}
+				columns={columns} 
+				dataSource={data} 
+				scroll={{ x: 1300, y: 300 }} 
+				pagination={false}
+				bordered={true}
+			/>);
 		}
-		return this.state.resList;
+		return this.resList;
 	}
 
 	/**
@@ -977,7 +1052,7 @@ class App extends React.Component {
 						}}
 					>
 						{(
-							(this.readResList().length>0 || !this.readLoadingStatus()) &&
+							(this.readResList().length==0 && !this.readLoadingStatus()) &&
 								(<div className='border'>
 									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 								</div>)
@@ -988,6 +1063,12 @@ class App extends React.Component {
 								<div style={{textAlign: 'center'}}>
 									<Spin indicator={<LoadingOutlined style={{ fontSize: 60 }} spin />} />
 								</div>
+							)
+						)}
+						{(
+							(this.readResList().length!=0 && !this.readLoadingStatus()) &&
+							(
+								<div>{this.readResList()}</div>
 							)
 						)}
 					</Card>
