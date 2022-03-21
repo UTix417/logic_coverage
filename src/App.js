@@ -18,6 +18,7 @@ class App extends React.Component {
 	}
 
 	resList = [];
+	nowPathData = [];
 
 	/**
 	 * 调用方：页面按钮
@@ -250,8 +251,8 @@ class App extends React.Component {
 			} else if (mapdata[i].elesyn == '|!') {
 				map.push({
 					name: mapdata[i].elename,
-					tTo: '$T',
-					fTo: '$F',
+					tTo: '$F',
+					fTo: '$T',
 				});
 				toTIndex.forEach((value) => {
 					map[value].tTo = map.length - 1;
@@ -272,8 +273,8 @@ class App extends React.Component {
 			} else if (mapdata[i].elesyn == '&!') {
 				map.push({
 					name: mapdata[i].elename,
-					tTo: '$T',
-					fTo: '$F',
+					tTo: '$F',
+					fTo: '$T',
 				});
 				toFIndex.forEach((value) => {
 					map[value].fTo = map.length - 1;
@@ -325,6 +326,11 @@ class App extends React.Component {
 			// this.setState({
 			// 	resList: tempList
 			// });
+		}else if(map[nowindex].tTo=='$F'){
+			tempPath=nowPath;
+			tempPath[map[nowindex].name]='T';
+			tempPath['$res']='F';
+			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
 		}else{
 			tempPath=nowPath;
 			tempPath[map[nowindex].name]='T';
@@ -342,6 +348,11 @@ class App extends React.Component {
 			// this.setState({
 			// 	resList: tempList
 			// });
+		}else if(map[nowindex].fTo=='$T'){
+			tempPath=nowPath;
+			tempPath[map[nowindex].name]='F';
+			tempPath['$res']='T';
+			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
 		}else{
 			tempPath=nowPath;
 			tempPath[map[nowindex].name]='F';
@@ -356,67 +367,68 @@ class App extends React.Component {
 	 */
 	workWithHave = async (tureStr) => {
 		tureStr = await this.toFormat(tureStr);
-		this.setState({tureStr});
-		// console.log(this.state)
-		//console.log(tureStr,'???');
-		if(this.state.solveType==1){
-			this.prework1(tureStr);
-			{
-				// let target={};// &的部分
-				// let elements=[];// 变量
-				// let element='',elememtArea='';
-				// let res=[];// 测试用例
-				// for(let i=0;i<tureStr;i++){
-				// 	if(tureStr[i]=='|'){
-				// 		target[elememtArea]=[];
-				// 		elements[element]=1;
-				// 		element='';
-				// 		elememtArea='';
-				// 	}else if(tureStr[i]=='&'){
-				// 		elements[element]=1;
-				// 		element='';
-				// 	}else{
-				// 		elememtArea+=tureStr[i];
-				// 		if(tureStr[i]!='!'){
-				// 			element+=tureStr[i];
-				// 		}
-				// 	}
-				// }
-				// //可能需要化简
-				// let tempRes=[];
-				// for(let i=0;i<elements.length;i++){
-				// 	tempRes.push(1);
-				// }
-				// res.push(tempRes);
-				// tempRes=[];
-				// for(let i=0;i<elements.length;i++){
-				// 	tempRes.push(0);
-				// }
-				// res.push(tempRes);
-				// Object.keys(target).forEach((key)=>{//$$$ 如果想增加一些测试用例
-				// 	let isNotFlag=false;
-				// 	let innerElement='';
-				// 	for(let i=0;i<key.length;i++){
-				// 		if(key[i]=='!'){
-				// 			isNotFlag=true;
-				// 		}else if(key[i]=='&'){
+		this.setState({tureStr},()=>{
+			// console.log(this.state)
+			//console.log(tureStr,'???');
+			if(this.state.solveType==1){
+				this.prework1(tureStr);
+				{
+					// let target={};// &的部分
+					// let elements=[];// 变量
+					// let element='',elememtArea='';
+					// let res=[];// 测试用例
+					// for(let i=0;i<tureStr;i++){
+					// 	if(tureStr[i]=='|'){
+					// 		target[elememtArea]=[];
+					// 		elements[element]=1;
+					// 		element='';
+					// 		elememtArea='';
+					// 	}else if(tureStr[i]=='&'){
+					// 		elements[element]=1;
+					// 		element='';
+					// 	}else{
+					// 		elememtArea+=tureStr[i];
+					// 		if(tureStr[i]!='!'){
+					// 			element+=tureStr[i];
+					// 		}
+					// 	}
+					// }
+					// //可能需要化简
+					// let tempRes=[];
+					// for(let i=0;i<elements.length;i++){
+					// 	tempRes.push(1);
+					// }
+					// res.push(tempRes);
+					// tempRes=[];
+					// for(let i=0;i<elements.length;i++){
+					// 	tempRes.push(0);
+					// }
+					// res.push(tempRes);
+					// Object.keys(target).forEach((key)=>{//$$$ 如果想增加一些测试用例
+					// 	let isNotFlag=false;
+					// 	let innerElement='';
+					// 	for(let i=0;i<key.length;i++){
+					// 		if(key[i]=='!'){
+					// 			isNotFlag=true;
+					// 		}else if(key[i]=='&'){
 
-				// 			isNotFlag=false;
-				// 			innerElement='';
-				// 		}else{
-				// 			innerElement+=key[i];
-				// 		}
-				// 		if(i==key.length-1){
+					// 			isNotFlag=false;
+					// 			innerElement='';
+					// 		}else{
+					// 			innerElement+=key[i];
+					// 		}
+					// 		if(i==key.length-1){
 
-				// 		}
-				// 	}
-				// })
-			}
-		}else if(this.state.solveType==2){
+					// 		}
+					// 	}
+					// })
+				}
+			}else if(this.state.solveType==2){
 
-		}else if(this.state.solveType==3){
+			}else if(this.state.solveType==3){
 
-		}
+			}	
+		});
 	}
 
 	/**
@@ -838,23 +850,28 @@ class App extends React.Component {
 		// 	}
 		// }
 		}
-		let mapdata=[];
-		let elename='',elesyn='&';
-		for(let i=0;i<tureStr.length;i++){
-			if(tureStr[i]=='|'||tureStr[i]=='&'||tureStr[i]=='!'){
-				elesyn+=tureStr[i];
-				mapdata[mapdata.length-1]['elename']=elename;
-				elename='';
-			}else{
-				elename+=tureStr[i];
-				mapdata.push({elesyn});
-				elesyn='';
+		this.setState({tureStr},()=>{
+			let mapdata=[];
+			let elename='',elesyn='&';
+			for(let i=0;i<tureStr.length;i++){
+				if(tureStr[i]=='|'||tureStr[i]=='&'||tureStr[i]=='!'){//$$$ 非还要处理
+					elesyn+=tureStr[i];
+					if(mapdata.length==0){
+						continue;
+					}
+					mapdata[mapdata.length-1]['elename']=elename;
+					elename='';
+				}else{
+					elename+=tureStr[i];
+					mapdata.push({elesyn});
+					elesyn='';
+				}
+				if(i==tureStr.length-1){
+					mapdata[mapdata.length-1]['elename']=elename;
+				}
 			}
-			if(i==tureStr.length-1){
-				mapdata[mapdata.length-1]['elename']=elename;
-			}
-		}
-		this.work1(mapdata)
+			this.work1(mapdata)	
+		})
 	}
 
 	/**
@@ -928,10 +945,13 @@ class App extends React.Component {
 				onRow={record => {
 					return {
 					  onMouseEnter: () => {
-						console.log(record)
+						this.nowPathData=record;
+						this.setState({loading:false});
+						// console.log(record)
 					  }, // 鼠标移入行
 					  onMouseLeave: () => {
-
+						this.nowPathData={};
+						this.setState({loading:false});
 					  },
 					};
 				  }}
@@ -951,6 +971,69 @@ class App extends React.Component {
 	 */
 	readLoadingStatus(){
 		return this.state.loading;
+	}
+
+	/**
+	 * 调用方：render
+	 * 作用：更新页面中的分析数据 
+	 */
+	readAnalyData(){
+		let tureStr=this.state.tureStr;
+		if(!tureStr.length>0){
+			return false;
+		}
+		let analyTureStr='';
+		let elename='',elenameArea='';
+		for(let i=0;i<tureStr.length;i++){
+			if(tureStr[i]=='|'||tureStr[i]=='&'||tureStr[i]=='!'){
+				elename='';
+				if(tureStr[i]=='|'||tureStr[i]=='&'){
+					let resData=this.nowPathData[elename];
+					if(resData){
+						if((resData=='T'&&elenameArea[0]!='!')||(resData=='F'&&elenameArea[0]=='!')){
+							analyTureStr=tureStr.replace(elenameArea,`<span style="color:lime">${elenameArea}</span>`);
+						}else{
+							analyTureStr=tureStr.replace(elenameArea,`<span style="color:red">${elenameArea}</span>`);
+						}
+					}else if(Object.keys(this.nowPathData).length!=0){
+						analyTureStr=tureStr.replace(elenameArea,`<span style="color:blue">${elenameArea}</span>`);
+					}else{
+						analyTureStr=tureStr.replace(elenameArea,`<span style="color:black">${elenameArea}</span>`);
+					}
+					elenameArea='';
+				}else{
+					elenameArea+=tureStr[i];
+				}
+			}else{
+				elename+=tureStr[i];
+				elenameArea+=tureStr[i];
+			}
+			if(i==tureStr.length-1){
+				let resData=this.nowPathData[elename];
+				if(resData){
+					if((resData=='T'&&elenameArea[0]!='!')||(resData=='F'&&elenameArea[0]=='!')){
+						analyTureStr=tureStr.replace(elenameArea,`<span style="color:lime">${elenameArea}</span>`);
+					}else{
+						analyTureStr=tureStr.replace(elenameArea,`<span style="color:red">${elenameArea}</span>`);
+					}
+				}else if(Object.keys(this.nowPathData).length!=0){
+					analyTureStr=tureStr.replace(elenameArea,`<span style="color:blue">${elenameArea}</span>`);
+				}else{
+					analyTureStr=tureStr.replace(elenameArea,`<span style="color:black">${elenameArea}</span>`);
+				}
+			}
+		}
+		let analyData=(
+			<div>
+				<Text mark>绿色为T，红色为F，蓝色为非关键</Text>
+				<div>
+					<Text code>
+						<span style={{fontSize:'16px'}} dangerouslySetInnerHTML={{__html:analyTureStr}}></span>
+					</Text>	
+				</div>
+			</div>
+			);
+		return analyData;
 	}
 
 	render() {
@@ -1021,7 +1104,7 @@ class App extends React.Component {
 								}}
 							>
 								{(
-									(this.readResList().length>0 || !this.readLoadingStatus()) &&
+									(!this.readAnalyData() && !this.readLoadingStatus()) &&
 										(<div className='border'>
 											<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 										</div>)
@@ -1033,6 +1116,10 @@ class App extends React.Component {
 											<Spin indicator={<LoadingOutlined style={{ fontSize: 60 }} spin />} />
 										</div>
 									)
+								)}
+								{(
+									(this.readAnalyData() && !this.readLoadingStatus())&&
+									(<div>{this.readAnalyData()}</div>)
 								)}
 							</Card>
 						</div>
