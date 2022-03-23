@@ -17,6 +17,7 @@ class App extends React.Component {
 		}
 	}
 
+	map = [];
 	resList = [];
 	nowPathData = [];
 
@@ -25,6 +26,7 @@ class App extends React.Component {
 	 * 作用：设置页面中的loading状态
 	 */
 	prework = (solveType) => {
+		this.map=[];
 		this.resList=[];
 		this.setState({
 			loading: true,
@@ -157,7 +159,7 @@ class App extends React.Component {
 		// 	return pos[a] - pos[b];
 		// })
 		// let workStr = '';
-		// let map = [{
+		// let this.map = [{
 		// 	name: '$head',
 		// 	tTo: '$T',//'$T' or index
 		// 	fTo: '$F',//'$F' or index
@@ -173,117 +175,131 @@ class App extends React.Component {
 		// 	let workType = this.state.solveType;
 		// 	if (workType == 1) {// 1条件判定
 		// 		if (workStr == '') {
-		// 			map[0].name = key;
+		// 			this.map[0].name = key;
 		// 			toTIndex.push(0);
 		// 			toFIndex.push(0);
 		// 		} else {
 		// 			if (syn[key] == '&') {
-		// 				map.push({
+		// 				this.map.push({
 		// 					name: key,
 		// 					tTo: '$T',
 		// 					fTo: '$F',
 		// 				});
 		// 				toTIndex.forEach((value) => {
-		// 					map[value].tTo = map.length - 1;
+		// 					this.map[value].tTo = this.map.length - 1;
 		// 				})
-		// 				toTIndex = map.length - 1;
-		// 				toFIndex.push(map.length - 1);
+		// 				toTIndex = this.map.length - 1;
+		// 				toFIndex.push(this.map.length - 1);
 		// 			} else if (syn[key] == '|!') {
-		// 				map.push({
+		// 				this.map.push({
 		// 					name: key,
 		// 					tTo: '$T',
 		// 					fTo: '$F',
 		// 				});
 		// 				toTIndex.forEach((value) => {
-		// 					map[value].tTo = map.length - 1;
+		// 					this.map[value].tTo = this.map.length - 1;
 		// 				})
-		// 				toTIndex = map.length - 1;
-		// 				toFIndex.push(map.length - 1);
+		// 				toTIndex = this.map.length - 1;
+		// 				toFIndex.push(this.map.length - 1);
 		// 			} else if (syn[key] == '|') {
-		// 				map.push({
+		// 				this.map.push({
 		// 					name: key,
 		// 					tTo: '$T',
 		// 					fTo: '$F',
 		// 				});
 		// 				toFIndex.forEach((value) => {
-		// 					map[value].fTo = map.length - 1;
+		// 					this.map[value].fTo = this.map.length - 1;
 		// 				});
-		// 				toFIndex = map.length - 1;
-		// 				toTIndex.push(map.length - 1);
+		// 				toFIndex = this.map.length - 1;
+		// 				toTIndex.push(this.map.length - 1);
 		// 			} else if (syn[key] == '&!') {
-		// 				map.push({
+		// 				this.map.push({
 		// 					name: key,
 		// 					tTo: '$T',
 		// 					fTo: '$F',
 		// 				});
 		// 				toFIndex.forEach((value) => {
-		// 					map[value].fTo = map.length - 1;
+		// 					this.map[value].fTo = this.map.length - 1;
 		// 				});
-		// 				toFIndex = map.length - 1;
-		// 				toTIndex.push(map.length - 1);
+		// 				toFIndex = this.map.length - 1;
+		// 				toTIndex.push(this.map.length - 1);
 		// 			}
 		// 		}
 		// 	}
 		// })
 		}
-		let map = [];
 		/**
-		 * 	map[i]={
+		 * 	this.map[i]={
 				name: '$head',
 				tTo: '$T',//'$T' or index
 				fTo: '$F',//'$F' or index
+				elesyn: '',
 			}
 		 */
-		let toTIndex = [];
+		let toTIndex = -1;
 		let toFIndex = [];
 		for(let i=0;i<mapdata.length;i++){
 			if (mapdata[i].elesyn == '&') {
-				map.push({
+				this.map.push({
 					name: mapdata[i].elename,
 					tTo: '$T',
 					fTo: '$F',
 				});
-				toTIndex.forEach((value) => {
-					map[value].tTo = map.length - 1;
-				})
-				toTIndex = [map.length - 1];
-				toFIndex.push(map.length - 1);
+				// toTIndex.forEach((value) => {
+				// 	this.map[value].tTo = this.map.length - 1;
+				// })
+				if(toTIndex!=-1){
+					this.map[toTIndex].tTo=this.map.length - 1;
+				}
+				this.map[i].elesyn=mapdata[i].elesyn;
+				toTIndex = this.map.length - 1;
+				toFIndex.push(this.map.length - 1);
 			} else if (mapdata[i].elesyn == '|!') {
-				map.push({
+				this.map.push({
 					name: mapdata[i].elename,
 					tTo: '$F',
 					fTo: '$T',
 				});
 				toTIndex.forEach((value) => {
-					map[value].tTo = map.length - 1;
+					this.map[value].tTo = this.map.length - 1;
 				})
-				toTIndex = [map.length - 1];
-				toFIndex.push(map.length - 1);
+				this.map[i].elesyn=mapdata[i].elesyn;
+				toTIndex = [this.map.length - 1];
+				toFIndex.push(this.map.length - 1);
 			} else if (mapdata[i].elesyn == '|') {
-				map.push({
+				this.map.push({
 					name: mapdata[i].elename,
 					tTo: '$T',
 					fTo: '$F',
 				});
 				toFIndex.forEach((value) => {
-					map[value].fTo = map.length - 1;
+					this.map[value].fTo = this.map.length - 1;
 				});
-				toFIndex = [map.length - 1];
-				toTIndex.push(map.length - 1);
+				this.map[i].elesyn=mapdata[i].elesyn;
+				toFIndex = [this.map.length - 1];
+				// toTIndex.push(this.map.length - 1);
+				toTIndex=this.map.length - 1;
 			} else if (mapdata[i].elesyn == '&!') {
-				map.push({
+				this.map.push({
 					name: mapdata[i].elename,
 					tTo: '$F',
 					fTo: '$T',
 				});
-				toFIndex.forEach((value) => {
-					map[value].fTo = map.length - 1;
-				});
-				toFIndex = [map.length - 1];
-				toTIndex.push(map.length - 1);
+				// toFIndex.forEach((value) => {
+				// 	this.map[value].fTo = this.map.length - 1;
+				// });
+				if(toTIndex!=-1){
+					this.map[toTIndex].fTo=this.map.length - 1;
+				}
+				this.map[i].elesyn=mapdata[i].elesyn;
+				toTIndex = this.map.length - 1;
+				toFIndex = [this.map.length - 1];
+				// toTIndex.push(this.map.length - 1);
+				toTIndex=this.map.length - 1;
 			}
 		}
-		this.getPathFromMap(map,0,{}).then(()=>{
+
+		this.getPathFromMap(0,{}).then(()=>{
 			this.setState({
 				loading: false,
 			})
@@ -293,70 +309,70 @@ class App extends React.Component {
 	/**
 	 * 调用方：work1、getPathFromMap(递归)
 	 * 作用：dfs求测试用例
-	 * @param {{
-				name: '$head',
-				tTo: '$T',//'$T' or index
-				fTo: '$F',//'$F' or index
-			}} map 图
 	 * @param {Number} nowindex 当前节点
 	 * @param {{变量名:boolean, $res:boolean}} nowPath  现在的变量情况
 	 */
-	getPathFromMap = async (map, nowindex, nowPath)=> {
+	getPathFromMap = async (nowindex, nowPath)=> {
 		let tempPath = {};
-		if(map.length==0){
+		if(this.map.length==0){
 			return;
 		}
-		if(nowPath[map[nowindex].name]=='T'){
-			this.getPathFromMap(map,map[nowindex].tTo,nowPath);
-			return;
+		// console.log(nowindex,nowPath)
+		// if(nowPath[this.map[nowindex].name]=='T'){
+		// 	this.getPathFromMap(this.map,this.map[nowindex].tTo,JSON.parse(JSON.stringify(nowPath)));
+		// 	return;
+		// }
+		// if(nowPath[this.map[nowindex].name]=='F'){
+		// 	this.getPathFromMap(this.map,this.map[nowindex].tFo,JSON.parse(JSON.stringify(nowPath)));
+		// 	return;
+		// }
+		if(nowPath[this.map[nowindex].name]!='F'){
+			if(this.map[nowindex].tTo=='$T'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='T';
+				tempPath['$res']='T';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+				// let tempList=[...this.state.resList];
+				// console.log(this.resList,"??",tempPath)
+				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
+				// console.log(tempList,"!!",tempPath)
+				// this.setState({
+				// 	resList: tempList
+				// });
+			}else if(this.map[nowindex].tTo=='$F'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='T';
+				tempPath['$res']='F';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+			}else{
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='T';
+				this.getPathFromMap(this.map[nowindex].tTo,tempPath);
+			}	
 		}
-		if(nowPath[map[nowindex].name]=='F'){
-			this.getPathFromMap(map,map[nowindex].tFo,nowPath);
-			return;
-		}
-		if(map[nowindex].tTo=='$T'){
-			tempPath=nowPath;
-			tempPath[map[nowindex].name]='T';
-			tempPath['$res']='T';
-			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-			// let tempList=[...this.state.resList];
-			// console.log(this.resList,"??",tempPath)
-			// tempList.push(JSON.parse(JSON.stringify(tempPath)));
-			// console.log(tempList,"!!",tempPath)
-			// this.setState({
-			// 	resList: tempList
-			// });
-		}else if(map[nowindex].tTo=='$F'){
-			tempPath=nowPath;
-			tempPath[map[nowindex].name]='T';
-			tempPath['$res']='F';
-			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-		}else{
-			tempPath=nowPath;
-			tempPath[map[nowindex].name]='T';
-			this.getPathFromMap(map,map[nowindex].tTo,tempPath);
-		}
-		if(map[nowindex].fTo=='$F'){
-			tempPath=nowPath;
-			tempPath[map[nowindex].name]='F';
-			tempPath['$res']='F';
-			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-			// let tempList=[...this.state.resList];
-			// console.log(this.resList,"??",tempPath)
-			// tempList.push(JSON.parse(JSON.stringify(tempPath)));
-			// console.log(tempList,"!!",tempPath)
-			// this.setState({
-			// 	resList: tempList
-			// });
-		}else if(map[nowindex].fTo=='$T'){
-			tempPath=nowPath;
-			tempPath[map[nowindex].name]='F';
-			tempPath['$res']='T';
-			this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-		}else{
-			tempPath=nowPath;
-			tempPath[map[nowindex].name]='F';
-			this.getPathFromMap(map,map[nowindex].fTo,tempPath);
+		if(nowPath[this.map[nowindex].name]!='T'){
+			if(this.map[nowindex].fTo=='$F'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='F';
+				tempPath['$res']='F';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+				// let tempList=[...this.state.resList];
+				// console.log(this.resList,"??",tempPath)
+				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
+				// console.log(tempList,"!!",tempPath)
+				// this.setState({
+				// 	resList: tempList
+				// });
+			}else if(this.map[nowindex].fTo=='$T'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='F';
+				tempPath['$res']='T';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+			}else{
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='F';
+				this.getPathFromMap(this.map[nowindex].fTo,tempPath);
+			}
 		}
 	}
 
@@ -984,26 +1000,28 @@ class App extends React.Component {
 		}
 		let analyTureStr='';
 		let elename='',elenameArea='';
+		// console.log("-----------------------")
 		for(let i=0;i<tureStr.length;i++){
 			if(tureStr[i]=='|'||tureStr[i]=='&'||tureStr[i]=='!'){
-				elename='';
 				if(tureStr[i]=='|'||tureStr[i]=='&'){
 					let resData=this.nowPathData[elename];
 					if(resData){
 						if((resData=='T'&&elenameArea[0]!='!')||(resData=='F'&&elenameArea[0]=='!')){
-							analyTureStr=tureStr.replace(elenameArea,`<span style="color:lime">${elenameArea}</span>`);
+							analyTureStr+=`<span style="color:lime">${elenameArea}</span>`;
 						}else{
-							analyTureStr=tureStr.replace(elenameArea,`<span style="color:red">${elenameArea}</span>`);
+							analyTureStr+=`<span style="color:red">${elenameArea}</span>`;
 						}
 					}else if(Object.keys(this.nowPathData).length!=0){
-						analyTureStr=tureStr.replace(elenameArea,`<span style="color:blue">${elenameArea}</span>`);
+						analyTureStr+=`<span style="color:blue">${elenameArea}</span>`;
 					}else{
-						analyTureStr=tureStr.replace(elenameArea,`<span style="color:black">${elenameArea}</span>`);
+						analyTureStr+=`<span style="color:black">${elenameArea}</span>`;
 					}
+					analyTureStr+=tureStr[i];
 					elenameArea='';
 				}else{
 					elenameArea+=tureStr[i];
 				}
+				elename='';
 			}else{
 				elename+=tureStr[i];
 				elenameArea+=tureStr[i];
@@ -1012,14 +1030,14 @@ class App extends React.Component {
 				let resData=this.nowPathData[elename];
 				if(resData){
 					if((resData=='T'&&elenameArea[0]!='!')||(resData=='F'&&elenameArea[0]=='!')){
-						analyTureStr=tureStr.replace(elenameArea,`<span style="color:lime">${elenameArea}</span>`);
+						analyTureStr+=`<span style="color:lime">${elenameArea}</span>`;
 					}else{
-						analyTureStr=tureStr.replace(elenameArea,`<span style="color:red">${elenameArea}</span>`);
+						analyTureStr+=`<span style="color:red">${elenameArea}</span>`;
 					}
 				}else if(Object.keys(this.nowPathData).length!=0){
-					analyTureStr=tureStr.replace(elenameArea,`<span style="color:blue">${elenameArea}</span>`);
+					analyTureStr+=`<span style="color:blue">${elenameArea}</span>`;
 				}else{
-					analyTureStr=tureStr.replace(elenameArea,`<span style="color:black">${elenameArea}</span>`);
+					analyTureStr+=`<span style="color:black">${elenameArea}</span>`;
 				}
 			}
 		}
@@ -1034,6 +1052,146 @@ class App extends React.Component {
 			</div>
 			);
 		return analyData;
+	}
+
+	/**
+	 * 调用方：render
+	 * 作用：更新页面中的分析数据的图 
+	 */
+	readAnalyMap(){
+		if(this.map.length==0){
+			return null;
+		}
+		let mapdrawdata = JSON.parse(JSON.stringify(this.map));
+		let nowX=10,nowY=10;
+		let analyMapHtml='';
+		for(let i=0;i<mapdrawdata.length;i++){
+			if(mapdrawdata[i].elesyn[0]=='|'){
+				nowY+=60;
+				nowX=10;
+				mapdrawdata[i].X=nowX;
+				mapdrawdata[i].Y=nowY;
+				nowX+=60;
+			}else if(mapdrawdata[i].elesyn[0]=='&'){
+				mapdrawdata[i].X=nowX;
+				mapdrawdata[i].Y=nowY;
+				nowX+=60;
+			}
+		}
+		for(let i=0;i<mapdrawdata.length;i++){
+			let{
+				X,
+				Y,
+				tTo,
+				fTo,
+				name,
+			}=mapdrawdata[i];
+			if(this.nowPathData[name]){
+				if(this.nowPathData[name]=='T'){
+					analyMapHtml+=
+					`<div style="position: absolute;
+						left: ${X}px;
+						top:${Y}px;
+						border: 1px solid lime;
+						border-radius: 50%;
+						height: 25px;
+						width: 25px;
+						color: lime;
+						text-align: center;">${name}</div>`;
+				}else if(this.nowPathData[name]=='F'){
+					analyMapHtml+=
+					`<div style="position: absolute;
+						left: ${X}px;
+						top:${Y}px;
+						border: 1px solid red;
+						border-radius: 50%;
+						height: 25px;
+						width: 25px;
+						color:red;
+						text-align: center;">${name}</div>`;
+				}else{
+					analyMapHtml+=
+					`<div style="position: absolute;
+						left: ${X}px;
+						top:${Y}px;
+						border: 1px solid blue;
+						border-radius: 50%;
+						height: 25px;
+						width: 25px;
+						color:blue;
+						text-align: center;">${name}</div>`;
+				}
+			}else{
+				analyMapHtml+=
+					`<div style="position: absolute;
+						left: ${X}px;
+						top:${Y}px;
+						border: 1px solid;
+						border-radius: 50%;
+						height: 25px;
+						width: 25px;
+						text-align: center;">${name}</div>`;	
+			}
+			if(mapdrawdata[tTo]){
+				let xx=X-mapdrawdata[tTo].X;
+				let yy=Y-mapdrawdata[tTo].Y;
+				let angle=Math.atan(yy/xx)*360/2/Math.PI;
+				if(xx==0){
+					angle=90;
+				}
+				let backx=0;
+				let backy=0;
+				if(xx>0){
+					backx=-6;
+				}else if(xx<0){
+					backx=6;
+				}
+				if(yy>0){
+					backy=-6;
+				}else if(yy<0){
+					backy=6;
+				}
+				let startX=Math.min(X,mapdrawdata[tTo].X);
+				let startY=Math.min(Y,mapdrawdata[tTo].Y);
+				console.log(startX,startY)
+				analyMapHtml+=
+					`<div style="position: absolute;
+						left: ${startX+12.5*Math.abs(Math.cos(angle))+12.5}px;
+						top:${startY+12.5*Math.abs(Math.sin(angle))+12.5}px;
+						width:${((Math.abs(xx)-12.5)<0?0:(Math.abs(xx)-12.5))+1}px;
+						height:${((Math.abs(yy)-12.5)<0?0:(Math.abs(yy)-12.5))+1}px;
+						display:flex;
+						align-items: center;
+						background: linear-gradient(${angle}deg, transparent 49.5%,black, black, transparent 50.5%);
+						justify-content: center;">
+						<div style="background: white;">T</div>
+					</div>
+					<div style="position: absolute;
+						left: ${X-xx-backx}px;
+						top:${Y-yy-backy}px;
+						width:10px;
+						height:10px;
+						background: linear-gradient(${angle+45}deg, transparent 49.5%,black, black, transparent 50.5%);
+					></div>
+					<div style="position: absolute;
+						left: ${X-xx-backx}px;
+						top:${Y-yy-backy}px;
+						width:10px;
+						height:10px;
+						background: linear-gradient(${angle-45}deg, transparent 49.5%,black, black, transparent 50.5%);
+					></div>`;
+			}else{
+
+			}
+			if(mapdrawdata[fTo]){
+
+			}else{
+
+			}
+		}
+		return (
+			<div dangerouslySetInnerHTML={{__html:analyMapHtml}}></div>
+		);
 	}
 
 	render() {
@@ -1090,7 +1248,7 @@ class App extends React.Component {
 							</Card>
 						</div>
 						<div className="showInfo-box">
-							<Card title="分析数据" 
+							<Card title="可视化数据" 
 								headStyle={{
 									background:'#66ccff',
 									borderLeft:'1px solid #000',
@@ -1120,6 +1278,17 @@ class App extends React.Component {
 								{(
 									(this.readAnalyData() && !this.readLoadingStatus())&&
 									(<div>{this.readAnalyData()}</div>)
+								)}
+								{(
+									(this.readAnalyMap() && !this.readLoadingStatus())&&
+									(<div style={{
+										position:'relative',
+										width:'100%',
+										height:'113px',
+										overflow:'auto',
+										border: '2px dotted red',}}>
+											{this.readAnalyMap()}
+									</div>)
 								)}
 							</Card>
 						</div>
