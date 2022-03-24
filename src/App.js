@@ -1043,7 +1043,7 @@ class App extends React.Component {
 		}
 		let analyData=(
 			<div>
-				<Text mark>绿色为T，红色为F，蓝色为非关键</Text>
+				<Text mark>绿色为T，红色为F，蓝色为非关键，金色为当前路径</Text>
 				<div>
 					<Text code>
 						<span style={{fontSize:'16px'}} dangerouslySetInnerHTML={{__html:analyTureStr}}></span>
@@ -1063,21 +1063,28 @@ class App extends React.Component {
 			return null;
 		}
 		let mapdrawdata = JSON.parse(JSON.stringify(this.map));
-		let nowX=10,nowY=10;
-		let analyMapHtml='';
+		let nowX=30,nowY=30;
+		let maxX=0,maxY=0;
 		for(let i=0;i<mapdrawdata.length;i++){
 			if(mapdrawdata[i].elesyn[0]=='|'){
 				nowY+=60;
-				nowX=10;
+				nowX=30;
 				mapdrawdata[i].X=nowX;
 				mapdrawdata[i].Y=nowY;
 				nowX+=60;
+				maxX=Math.max(maxX,nowX);
+				maxY=Math.max(maxY,nowY);
 			}else if(mapdrawdata[i].elesyn[0]=='&'){
 				mapdrawdata[i].X=nowX;
 				mapdrawdata[i].Y=nowY;
 				nowX+=60;
+				maxX=Math.max(maxX,nowX);
+				maxY=Math.max(maxY,nowY);
 			}
 		}
+		const canvas = document.getElementById('mapGraph');
+		const ctx = canvas.getContext('2d');
+		ctx.font = "24px serif";
 		for(let i=0;i<mapdrawdata.length;i++){
 			let{
 				X,
@@ -1086,112 +1093,27 @@ class App extends React.Component {
 				fTo,
 				name,
 			}=mapdrawdata[i];
+			ctx.fillText(name, X-6, Y+6);
+			ctx.beginPath();
+			ctx.arc(X,Y,20,0,2*Math.PI);
+			ctx.stroke();
 			if(this.nowPathData[name]){
-				if(this.nowPathData[name]=='T'){
-					analyMapHtml+=
-					`<div style="position: absolute;
-						left: ${X}px;
-						top:${Y}px;
-						border: 1px solid lime;
-						border-radius: 50%;
-						height: 25px;
-						width: 25px;
-						color: lime;
-						text-align: center;">${name}</div>`;
-				}else if(this.nowPathData[name]=='F'){
-					analyMapHtml+=
-					`<div style="position: absolute;
-						left: ${X}px;
-						top:${Y}px;
-						border: 1px solid red;
-						border-radius: 50%;
-						height: 25px;
-						width: 25px;
-						color:red;
-						text-align: center;">${name}</div>`;
-				}else{
-					analyMapHtml+=
-					`<div style="position: absolute;
-						left: ${X}px;
-						top:${Y}px;
-						border: 1px solid blue;
-						border-radius: 50%;
-						height: 25px;
-						width: 25px;
-						color:blue;
-						text-align: center;">${name}</div>`;
-				}
+				
 			}else{
-				analyMapHtml+=
-					`<div style="position: absolute;
-						left: ${X}px;
-						top:${Y}px;
-						border: 1px solid;
-						border-radius: 50%;
-						height: 25px;
-						width: 25px;
-						text-align: center;">${name}</div>`;	
+				
 			}
 			if(mapdrawdata[tTo]){
-				let xx=X-mapdrawdata[tTo].X;
-				let yy=Y-mapdrawdata[tTo].Y;
-				let angle=Math.atan(yy/xx)*360/2/Math.PI;
-				if(xx==0){
-					angle=90;
-				}
-				let backx=0;
-				let backy=0;
-				if(xx>0){
-					backx=-6;
-				}else if(xx<0){
-					backx=6;
-				}
-				if(yy>0){
-					backy=-6;
-				}else if(yy<0){
-					backy=6;
-				}
-				let startX=Math.min(X,mapdrawdata[tTo].X);
-				let startY=Math.min(Y,mapdrawdata[tTo].Y);
-				console.log(startX,startY)
-				analyMapHtml+=
-					`<div style="position: absolute;
-						left: ${startX+12.5*Math.abs(Math.cos(angle))+12.5}px;
-						top:${startY+12.5*Math.abs(Math.sin(angle))+12.5}px;
-						width:${((Math.abs(xx)-12.5)<0?0:(Math.abs(xx)-12.5))+1}px;
-						height:${((Math.abs(yy)-12.5)<0?0:(Math.abs(yy)-12.5))+1}px;
-						display:flex;
-						align-items: center;
-						background: linear-gradient(${angle}deg, transparent 49.5%,black, black, transparent 50.5%);
-						justify-content: center;">
-						<div style="background: white;">T</div>
-					</div>
-					<div style="position: absolute;
-						left: ${X-xx-backx}px;
-						top:${Y-yy-backy}px;
-						width:10px;
-						height:10px;
-						background: linear-gradient(${angle+45}deg, transparent 49.5%,black, black, transparent 50.5%);
-					></div>
-					<div style="position: absolute;
-						left: ${X-xx-backx}px;
-						top:${Y-yy-backy}px;
-						width:10px;
-						height:10px;
-						background: linear-gradient(${angle-45}deg, transparent 49.5%,black, black, transparent 50.5%);
-					></div>`;
+				
 			}else{
-
+				
 			}
 			if(mapdrawdata[fTo]){
-
+				
 			}else{
 
 			}
 		}
-		return (
-			<div dangerouslySetInnerHTML={{__html:analyMapHtml}}></div>
-		);
+		return true;
 	}
 
 	render() {
@@ -1280,15 +1202,9 @@ class App extends React.Component {
 									(<div>{this.readAnalyData()}</div>)
 								)}
 								{(
-									(this.readAnalyMap() && !this.readLoadingStatus())&&
-									(<div style={{
-										position:'relative',
-										width:'100%',
-										height:'113px',
-										overflow:'auto',
-										border: '2px dotted red',}}>
-											{this.readAnalyMap()}
-									</div>)
+									<canvas id="mapGraph" style={{
+										height: this.readAnalyMap()?'90px':'0px',
+									}}></canvas>
 								)}
 							</Card>
 						</div>
