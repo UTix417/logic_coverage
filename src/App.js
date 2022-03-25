@@ -19,7 +19,10 @@ class App extends React.Component {
 
 	map = [];
 	resList = [];
-	nowPathData = [];
+	nowPathData = {};
+	hasClickdata=false;
+	collopesStatus=false;
+	showCanvas=false;
 
 	/**
 	 * 调用方：页面按钮
@@ -28,6 +31,10 @@ class App extends React.Component {
 	prework = (solveType) => {
 		this.map=[];
 		this.resList=[];
+		this.nowPathData={};
+		this.showCanvas=false;
+		this.hasClickdata=false;
+		this.collopesStatus=false;
 		this.setState({
 			loading: true,
 			solveType,
@@ -140,239 +147,11 @@ class App extends React.Component {
 	 */
 	workWithNo = (tureStr) => {
 		if(this.state.solveType==1){
-			this.prework1(tureStr);
+			this.preworkX(tureStr,this.work1);
 		}else if(this.state.solveType==2){
-
+			this.preworkX(tureStr,this.work2);
 		}else if(this.state.solveType==3){
 			
-		}
-	}
-
-	/**
-	 * 调用方：prework1
-	 * 作用：组织一张图
-	 * @param {{elesyn: string,elename: string}[]} mapdata 字符串获取的顺序节点
-	 */
-	work1 = (mapdata) => {
-		{
-		// pos = Object.keys(pos).sort((a, b) => {
-		// 	return pos[a] - pos[b];
-		// })
-		// let workStr = '';
-		// let this.map = [{
-		// 	name: '$head',
-		// 	tTo: '$T',//'$T' or index
-		// 	fTo: '$F',//'$F' or index
-		// }];
-		// let toTIndex = [];
-		// let toFIndex = [];
-		// Object.keys(pos).forEach((key) => {
-		// 	if (workStr == '') {
-		// 		workStr += key;
-		// 	} else {
-		// 		workStr += syn[key] + key;
-		// 	}
-		// 	let workType = this.state.solveType;
-		// 	if (workType == 1) {// 1条件判定
-		// 		if (workStr == '') {
-		// 			this.map[0].name = key;
-		// 			toTIndex.push(0);
-		// 			toFIndex.push(0);
-		// 		} else {
-		// 			if (syn[key] == '&') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toTIndex.forEach((value) => {
-		// 					this.map[value].tTo = this.map.length - 1;
-		// 				})
-		// 				toTIndex = this.map.length - 1;
-		// 				toFIndex.push(this.map.length - 1);
-		// 			} else if (syn[key] == '|!') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toTIndex.forEach((value) => {
-		// 					this.map[value].tTo = this.map.length - 1;
-		// 				})
-		// 				toTIndex = this.map.length - 1;
-		// 				toFIndex.push(this.map.length - 1);
-		// 			} else if (syn[key] == '|') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toFIndex.forEach((value) => {
-		// 					this.map[value].fTo = this.map.length - 1;
-		// 				});
-		// 				toFIndex = this.map.length - 1;
-		// 				toTIndex.push(this.map.length - 1);
-		// 			} else if (syn[key] == '&!') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toFIndex.forEach((value) => {
-		// 					this.map[value].fTo = this.map.length - 1;
-		// 				});
-		// 				toFIndex = this.map.length - 1;
-		// 				toTIndex.push(this.map.length - 1);
-		// 			}
-		// 		}
-		// 	}
-		// })
-		}
-		/**
-		 * 	this.map[i]={
-				name: '$head',
-				tTo: '$T',//'$T' or index
-				fTo: '$F',//'$F' or index
-				elesyn: '',
-			}
-		 */
-		let toTIndex = -1;
-		let toFIndex = [];
-		for(let i=0;i<mapdata.length;i++){
-			if (mapdata[i].elesyn == '&') {
-				this.map.push({
-					name: mapdata[i].elename,
-					tTo: '$T',
-					fTo: '$F',
-				});
-				// toTIndex.forEach((value) => {
-				// 	this.map[value].tTo = this.map.length - 1;
-				// })
-				if(toTIndex!=-1){
-					this.map[toTIndex].tTo=this.map.length - 1;
-				}
-				this.map[i].elesyn=mapdata[i].elesyn;
-				toTIndex = this.map.length - 1;
-				toFIndex.push(this.map.length - 1);
-			} else if (mapdata[i].elesyn == '|!') {
-				this.map.push({
-					name: mapdata[i].elename,
-					tTo: '$F',
-					fTo: '$T',
-				});
-				toTIndex.forEach((value) => {
-					this.map[value].tTo = this.map.length - 1;
-				})
-				this.map[i].elesyn=mapdata[i].elesyn;
-				toTIndex = [this.map.length - 1];
-				toFIndex.push(this.map.length - 1);
-			} else if (mapdata[i].elesyn == '|') {
-				this.map.push({
-					name: mapdata[i].elename,
-					tTo: '$T',
-					fTo: '$F',
-				});
-				toFIndex.forEach((value) => {
-					this.map[value].fTo = this.map.length - 1;
-				});
-				this.map[i].elesyn=mapdata[i].elesyn;
-				toFIndex = [this.map.length - 1];
-				// toTIndex.push(this.map.length - 1);
-				toTIndex=this.map.length - 1;
-			} else if (mapdata[i].elesyn == '&!') {
-				this.map.push({
-					name: mapdata[i].elename,
-					tTo: '$F',
-					fTo: '$T',
-				});
-				// toFIndex.forEach((value) => {
-				// 	this.map[value].fTo = this.map.length - 1;
-				// });
-				if(toTIndex!=-1){
-					this.map[toTIndex].fTo=this.map.length - 1;
-				}
-				this.map[i].elesyn=mapdata[i].elesyn;
-				toTIndex = this.map.length - 1;
-				toFIndex = [this.map.length - 1];
-				// toTIndex.push(this.map.length - 1);
-				toTIndex=this.map.length - 1;
-			}
-		}
-
-		this.getPathFromMap(0,{}).then(()=>{
-			this.setState({
-				loading: false,
-			})
-		});
-	}
-
-	/**
-	 * 调用方：work1、getPathFromMap(递归)
-	 * 作用：dfs求测试用例
-	 * @param {Number} nowindex 当前节点
-	 * @param {{变量名:boolean, $res:boolean}} nowPath  现在的变量情况
-	 */
-	getPathFromMap = async (nowindex, nowPath)=> {
-		let tempPath = {};
-		if(this.map.length==0){
-			return;
-		}
-		// console.log(nowindex,nowPath)
-		// if(nowPath[this.map[nowindex].name]=='T'){
-		// 	this.getPathFromMap(this.map,this.map[nowindex].tTo,JSON.parse(JSON.stringify(nowPath)));
-		// 	return;
-		// }
-		// if(nowPath[this.map[nowindex].name]=='F'){
-		// 	this.getPathFromMap(this.map,this.map[nowindex].tFo,JSON.parse(JSON.stringify(nowPath)));
-		// 	return;
-		// }
-		if(nowPath[this.map[nowindex].name]!='F'){
-			if(this.map[nowindex].tTo=='$T'){
-				tempPath=JSON.parse(JSON.stringify(nowPath));
-				tempPath[this.map[nowindex].name]='T';
-				tempPath['$res']='T';
-				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-				// let tempList=[...this.state.resList];
-				// console.log(this.resList,"??",tempPath)
-				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
-				// console.log(tempList,"!!",tempPath)
-				// this.setState({
-				// 	resList: tempList
-				// });
-			}else if(this.map[nowindex].tTo=='$F'){
-				tempPath=JSON.parse(JSON.stringify(nowPath));
-				tempPath[this.map[nowindex].name]='T';
-				tempPath['$res']='F';
-				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-			}else{
-				tempPath=JSON.parse(JSON.stringify(nowPath));
-				tempPath[this.map[nowindex].name]='T';
-				this.getPathFromMap(this.map[nowindex].tTo,tempPath);
-			}	
-		}
-		if(nowPath[this.map[nowindex].name]!='T'){
-			if(this.map[nowindex].fTo=='$F'){
-				tempPath=JSON.parse(JSON.stringify(nowPath));
-				tempPath[this.map[nowindex].name]='F';
-				tempPath['$res']='F';
-				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-				// let tempList=[...this.state.resList];
-				// console.log(this.resList,"??",tempPath)
-				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
-				// console.log(tempList,"!!",tempPath)
-				// this.setState({
-				// 	resList: tempList
-				// });
-			}else if(this.map[nowindex].fTo=='$T'){
-				tempPath=JSON.parse(JSON.stringify(nowPath));
-				tempPath[this.map[nowindex].name]='F';
-				tempPath['$res']='T';
-				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-			}else{
-				tempPath=JSON.parse(JSON.stringify(nowPath));
-				tempPath[this.map[nowindex].name]='F';
-				this.getPathFromMap(this.map[nowindex].fTo,tempPath);
-			}
 		}
 	}
 
@@ -387,7 +166,7 @@ class App extends React.Component {
 			// console.log(this.state)
 			//console.log(tureStr,'???');
 			if(this.state.solveType==1){
-				this.prework1(tureStr);
+				this.preworkX(tureStr,this.work1);
 				{
 					// let target={};// &的部分
 					// let elements=[];// 变量
@@ -440,7 +219,7 @@ class App extends React.Component {
 					// })
 				}
 			}else if(this.state.solveType==2){
-
+				this.preworkX(tureStr,this.work2);
 			}else if(this.state.solveType==3){
 
 			}	
@@ -453,19 +232,22 @@ class App extends React.Component {
 	 * @param {string} str 当前处理的字符串字串 
 	 */
 	toFormat = async (str) => {
+		// console.log(str);
 		let startIndex = -1;
 		let num = [];
 		let nowNotFlag = 0;
 		//去括号递归
 		for (let i = 0; i < str.length; i++) {
-			if (str[i] == '(' && num.length == 0) {
-				startIndex = i + 1;
-				num.push(i);
-				if (i > 0) {
-					if (str[i-1] == '!') {
-						nowNotFlag = 1;
-					}
+			if (str[i] == '(') {
+				if(num.length == 0){
+					startIndex = i + 1;
+					if (i > 0) {
+						if (str[i-1] == '!') {
+							nowNotFlag = 1;
+						}
+					}	
 				}
+				num.push(i);
 				continue;
 			}
 			if (nowNotFlag) {
@@ -507,6 +289,7 @@ class App extends React.Component {
 			if (str[i] == ')') {
 				num.pop();
 				if (num.length == 0) {
+					// console.log(startIndex,str.substring(startIndex, i))
 					let res = await this.toFormat(str.substring(startIndex, i));
 					let tempStr = str;
 					str = '[' + res + ']';
@@ -580,12 +363,14 @@ class App extends React.Component {
 					let beforeElement = [];
 					let tempElement = '';
 					let isBefore=false;
+					let beforeStart=0;
 					for (let j = deleteStart - 2; j >=0 ; j--) {
 						if(str[j]==']'||!isBefore){
 							isBefore=true;
 							continue;
 						}
 						if(str[j]=='['){
+							beforeStart=j;
 							beforeElement.push(tempElement.split('').reverse().join(''));
 							break;
 						}
@@ -650,13 +435,15 @@ class App extends React.Component {
 							// console.log(resStr,'!!!',newelement)
 						}
 					}
+					// console.log(beforeStart,resStr)
 					if(i==str.length-1){
-						str='['+resStr+']';
-						i+=2;
+						str=str.substring(0,beforeStart)+'['+resStr+']';
+						i=(str.substring(0,beforeStart)+'['+resStr+']').length-1;
 					}else{
-						str='['+resStr+']'+str.substring(i+1,str.length);
-						i+=2;
+						str=str.substring(0,beforeStart)+'['+resStr+']'+str.substring(i+1,str.length);
+						i=(str.substring(0,beforeStart)+'['+resStr+']').length-1;
 					}
+					// console.log(str,i,str[i])
 					andFlag = false;
 				}
 				deleteStart = -1;
@@ -672,7 +459,7 @@ class App extends React.Component {
 	 * 作用：生成mapdata
 	 * @param {string} tureStr 经过！简化的字符串
 	 */
-	prework1 = (tureStr) => {//这里的消除逻辑有问题，要重新推导
+	preworkX = (tureStr,workFun) => {
 		{
 		// let syn = {};
 		// let pos = {};
@@ -886,7 +673,287 @@ class App extends React.Component {
 					mapdata[mapdata.length-1]['elename']=elename;
 				}
 			}
-			this.work1(mapdata)	
+			/**
+			 * 	this.map[i]={
+					name: '$head',
+					tTo: '$T',//'$T' or index
+					fTo: '$F',//'$F' or index
+					elesyn: '',
+				}
+			*/
+			let toTIndex = -1;
+			let toFIndex = [];
+			for(let i=0;i<mapdata.length;i++){
+				if (mapdata[i].elesyn == '&') {
+					this.map.push({
+						name: mapdata[i].elename,
+						tTo: '$T',
+						fTo: '$F',
+					});
+					// toTIndex.forEach((value) => {
+					// 	this.map[value].tTo = this.map.length - 1;
+					// })
+					if(toTIndex!=-1){
+						this.map[toTIndex].tTo=this.map.length - 1;
+					}
+					this.map[i].elesyn=mapdata[i].elesyn;
+					toTIndex = this.map.length - 1;
+					toFIndex.push(this.map.length - 1);
+				} else if (mapdata[i].elesyn == '|!') {
+					this.map.push({
+						name: mapdata[i].elename,
+						tTo: '$F',
+						fTo: '$T',
+					});
+					toTIndex.forEach((value) => {
+						this.map[value].tTo = this.map.length - 1;
+					})
+					this.map[i].elesyn=mapdata[i].elesyn;
+					toTIndex = [this.map.length - 1];
+					toFIndex.push(this.map.length - 1);
+				} else if (mapdata[i].elesyn == '|') {
+					this.map.push({
+						name: mapdata[i].elename,
+						tTo: '$T',
+						fTo: '$F',
+					});
+					toFIndex.forEach((value) => {
+						this.map[value].fTo = this.map.length - 1;
+					});
+					this.map[i].elesyn=mapdata[i].elesyn;
+					toFIndex = [this.map.length - 1];
+					// toTIndex.push(this.map.length - 1);
+					toTIndex=this.map.length - 1;
+				} else if (mapdata[i].elesyn == '&!') {
+					this.map.push({
+						name: mapdata[i].elename,
+						tTo: '$F',
+						fTo: '$T',
+					});
+					// toFIndex.forEach((value) => {
+					// 	this.map[value].fTo = this.map.length - 1;
+					// });
+					if(toTIndex!=-1){
+						this.map[toTIndex].fTo=this.map.length - 1;
+					}
+					this.map[i].elesyn=mapdata[i].elesyn;
+					toTIndex = this.map.length - 1;
+					toFIndex = [this.map.length - 1];
+					// toTIndex.push(this.map.length - 1);
+					toTIndex=this.map.length - 1;
+				}
+			}
+			workFun();
+		})
+	}
+
+	/**
+	 * 调用方：prework1
+	 * 作用：组织一张图
+	 * @param {{elesyn: string,elename: string}[]} mapdata 字符串获取的顺序节点
+	 */
+	work1 = () => {
+		{
+		// pos = Object.keys(pos).sort((a, b) => {
+		// 	return pos[a] - pos[b];
+		// })
+		// let workStr = '';
+		// let this.map = [{
+		// 	name: '$head',
+		// 	tTo: '$T',//'$T' or index
+		// 	fTo: '$F',//'$F' or index
+		// }];
+		// let toTIndex = [];
+		// let toFIndex = [];
+		// Object.keys(pos).forEach((key) => {
+		// 	if (workStr == '') {
+		// 		workStr += key;
+		// 	} else {
+		// 		workStr += syn[key] + key;
+		// 	}
+		// 	let workType = this.state.solveType;
+		// 	if (workType == 1) {// 1条件判定
+		// 		if (workStr == '') {
+		// 			this.map[0].name = key;
+		// 			toTIndex.push(0);
+		// 			toFIndex.push(0);
+		// 		} else {
+		// 			if (syn[key] == '&') {
+		// 				this.map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toTIndex.forEach((value) => {
+		// 					this.map[value].tTo = this.map.length - 1;
+		// 				})
+		// 				toTIndex = this.map.length - 1;
+		// 				toFIndex.push(this.map.length - 1);
+		// 			} else if (syn[key] == '|!') {
+		// 				this.map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toTIndex.forEach((value) => {
+		// 					this.map[value].tTo = this.map.length - 1;
+		// 				})
+		// 				toTIndex = this.map.length - 1;
+		// 				toFIndex.push(this.map.length - 1);
+		// 			} else if (syn[key] == '|') {
+		// 				this.map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toFIndex.forEach((value) => {
+		// 					this.map[value].fTo = this.map.length - 1;
+		// 				});
+		// 				toFIndex = this.map.length - 1;
+		// 				toTIndex.push(this.map.length - 1);
+		// 			} else if (syn[key] == '&!') {
+		// 				this.map.push({
+		// 					name: key,
+		// 					tTo: '$T',
+		// 					fTo: '$F',
+		// 				});
+		// 				toFIndex.forEach((value) => {
+		// 					this.map[value].fTo = this.map.length - 1;
+		// 				});
+		// 				toFIndex = this.map.length - 1;
+		// 				toTIndex.push(this.map.length - 1);
+		// 			}
+		// 		}
+		// 	}
+		// })
+		}
+		this.getPathFromMap(0,{}).then(()=>{
+			if(this.map.length!=0){
+				this.showCanvas=true;
+			}
+			this.setState({
+				loading: false,
+			})
+		});
+	}
+
+	/**
+	 * 调用方：work1、getPathFromMap(递归)
+	 * 作用：dfs求测试用例
+	 * @param {Number} nowindex 当前节点
+	 * @param {{变量名:boolean, $res:boolean}} nowPath  现在的变量情况
+	 */
+	getPathFromMap = async (nowindex, nowPath)=> {
+		let tempPath = {};
+		if(this.map.length==0){
+			return;
+		}
+		// console.log(nowindex,nowPath)
+		// if(nowPath[this.map[nowindex].name]=='T'){
+		// 	this.getPathFromMap(this.map,this.map[nowindex].tTo,JSON.parse(JSON.stringify(nowPath)));
+		// 	return;
+		// }
+		// if(nowPath[this.map[nowindex].name]=='F'){
+		// 	this.getPathFromMap(this.map,this.map[nowindex].tFo,JSON.parse(JSON.stringify(nowPath)));
+		// 	return;
+		// }
+		if(nowPath[this.map[nowindex].name]!='F'){
+			if(this.map[nowindex].tTo=='$T'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				if(!nowPath[this.map[nowindex].name]){
+
+				}
+				tempPath[this.map[nowindex].name]='T';
+				tempPath['$res']='T';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+				// let tempList=[...this.state.resList];
+				// console.log(this.resList,"??",tempPath)
+				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
+				// console.log(tempList,"!!",tempPath)
+				// this.setState({
+				// 	resList: tempList
+				// });
+			}else if(this.map[nowindex].tTo=='$F'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='T';
+				tempPath['$res']='F';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+			}else{
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='T';
+				this.getPathFromMap(this.map[nowindex].tTo,tempPath);
+			}	
+		}
+		if(nowPath[this.map[nowindex].name]!='T'){
+			if(this.map[nowindex].fTo=='$F'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='F';
+				tempPath['$res']='F';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+				// let tempList=[...this.state.resList];
+				// console.log(this.resList,"??",tempPath)
+				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
+				// console.log(tempList,"!!",tempPath)
+				// this.setState({
+				// 	resList: tempList
+				// });
+			}else if(this.map[nowindex].fTo=='$T'){
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='F';
+				tempPath['$res']='T';
+				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
+			}else{
+				tempPath=JSON.parse(JSON.stringify(nowPath));
+				tempPath[this.map[nowindex].name]='F';
+				this.getPathFromMap(this.map[nowindex].fTo,tempPath);
+			}
+		}
+	}
+
+	/**
+	 * 调用方：workWithNo、workWithHave
+	 * 作用：生成测试用例
+	 * @param {string} tureStr 经过！简化的字符串
+	 */
+	work2 = ()=>{
+		let elements={};
+		for(let i=0;i<this.map.length;i++){
+			elements[this.map[i].name]=1;
+		}
+		let status=(1<<Object.keys(elements).length);
+		let keys=Object.keys(elements);
+		for(let i=0;i<status;i++){
+			let nowStatus=i;
+			let tempRes={};
+			let keyIndex=0;
+			while(nowStatus||keyIndex<keys.length){
+				if(nowStatus&1){
+					tempRes[keys[keyIndex]]='T';
+				}else{
+					tempRes[keys[keyIndex]]='F';
+				}
+				keyIndex+=1;
+				nowStatus>>=1;
+			}
+			let nowIndex=0;
+			while(true){
+				if(!this.map[nowIndex]){
+					tempRes['$res']=nowIndex.substring(1,2);
+					break;
+				}
+				if(tempRes[this.map[nowIndex].name]=='T'){
+					nowIndex=this.map[nowIndex].tTo;
+				}else if(tempRes[this.map[nowIndex].name]=='F'){
+					nowIndex=this.map[nowIndex].fTo;
+				}
+			}
+			this.resList.push(tempRes)
+		}
+		if(this.map.length!=0){
+			this.showCanvas=true;
+		}
+		this.setState({
+			loading: false,
 		})
 	}
 
@@ -932,7 +999,6 @@ class App extends React.Component {
 						title:`${key}`,
 						dataIndex:`${key}`,
 						key: `${key}`,
-						width: 20,
 					})
 				}
 			})
@@ -941,7 +1007,6 @@ class App extends React.Component {
 					title:'表达式结果',
 					dataIndex: '$res',
     				key: '$res',
-					width: 10,
 					fixed: 'left',
 				},
 				{
@@ -958,14 +1023,33 @@ class App extends React.Component {
 			}
 			return (
 			<Table 
+				rowSelection={{
+					type: 'Checkbox',
+					onChange: (selectedRowKeys, selectedRows) => {
+						if(selectedRowKeys.length>1){
+							return;
+						}
+						this.hasClickdata=selectedRowKeys.length>0?true:false;
+						this.nowPathData=selectedRows[0];
+					},
+					getCheckboxProps: (record) => ({
+						disabled: JSON.stringify(record)!=JSON.stringify(this.nowPathData)&&JSON.stringify(this.nowPathData)!="{}",
+					}),
+				}}
 				onRow={record => {
 					return {
 					  onMouseEnter: () => {
+						if(this.hasClickdata){
+							return;
+						}
 						this.nowPathData=record;
 						this.setState({loading:false});
 						// console.log(record)
 					  }, // 鼠标移入行
 					  onMouseLeave: () => {
+						if(this.hasClickdata){
+							return;
+						}
 						this.nowPathData={};
 						this.setState({loading:false});
 					  },
@@ -973,7 +1057,7 @@ class App extends React.Component {
 				  }}
 				columns={columns} 
 				dataSource={data} 
-				scroll={{ x: 1300, y: 300 }} 
+				scroll={{ y: 300 }} 
 				pagination={false}
 				bordered={true}
 			/>);
@@ -1043,7 +1127,9 @@ class App extends React.Component {
 		}
 		let analyData=(
 			<div>
-				<Text mark>绿色为T，红色为F，蓝色为非关键，金色为当前路径</Text>
+				<Text mark>绿色为T，红色为F，蓝色为非关键，金色为当前路径，点击路径图可以纵向展开图片</Text>
+				<div></div>
+				<Text type="warning">图中线有所交叉是正常情况，请谅解</Text>
 				<div>
 					<Text code>
 						<span style={{fontSize:'16px'}} dangerouslySetInnerHTML={{__html:analyTureStr}}></span>
@@ -1065,26 +1151,71 @@ class App extends React.Component {
 		let mapdrawdata = JSON.parse(JSON.stringify(this.map));
 		let nowX=30,nowY=30;
 		let maxX=0,maxY=0;
+		let r=20;
 		for(let i=0;i<mapdrawdata.length;i++){
 			if(mapdrawdata[i].elesyn[0]=='|'){
-				nowY+=60;
+				nowY+=120;
 				nowX=30;
 				mapdrawdata[i].X=nowX;
 				mapdrawdata[i].Y=nowY;
-				nowX+=60;
+				nowX+=120;
 				maxX=Math.max(maxX,nowX);
 				maxY=Math.max(maxY,nowY);
 			}else if(mapdrawdata[i].elesyn[0]=='&'){
 				mapdrawdata[i].X=nowX;
 				mapdrawdata[i].Y=nowY;
-				nowX+=60;
+				nowX+=120;
 				maxX=Math.max(maxX,nowX);
 				maxY=Math.max(maxY,nowY);
+				maxY=Math.max(maxY,120);
 			}
 		}
 		const canvas = document.getElementById('mapGraph');
+		canvas.setAttribute("width",maxX+60);
+		canvas.setAttribute("height",maxY+60);
 		const ctx = canvas.getContext('2d');
 		ctx.font = "24px serif";
+		ctx.lineJoin="round";
+		let Tx=maxX,Ty=60,Fx=maxX,Fy=120;
+
+		ctx.strokeStyle='lime';
+		ctx.fillStyle ='lime';
+		ctx.fillText('$T', maxX-12, 66);
+		ctx.beginPath();
+		ctx.arc(Tx,Ty,r,0,2*Math.PI);
+		ctx.stroke();
+
+		ctx.strokeStyle='red';
+		ctx.fillStyle ='red';
+		ctx.fillText('$F', maxX-12, 126);
+		ctx.beginPath();
+		ctx.arc(Fx,Fy,r,0,2*Math.PI);
+		ctx.stroke();
+
+		let nowEdege={};
+		let nowIndex=0;
+		while(true){
+			if(JSON.stringify(this.nowPathData)=="{}"){
+				break;
+			}
+			if(this.map[nowIndex]){
+				let {
+					tTo,
+					fTo,
+					name,
+				}=this.map[nowIndex];
+				if(this.nowPathData[name]=='T'){
+					nowEdege['$'+nowIndex.toString()]=tTo;
+					nowIndex=tTo;
+				}else if(this.nowPathData[name]=='F'){
+					nowEdege['$'+nowIndex.toString()]=fTo;
+					nowIndex=fTo;
+				}
+			}else{
+				break;
+			}
+		}
+		
 		for(let i=0;i<mapdrawdata.length;i++){
 			let{
 				X,
@@ -1093,24 +1224,302 @@ class App extends React.Component {
 				fTo,
 				name,
 			}=mapdrawdata[i];
-			ctx.fillText(name, X-6, Y+6);
-			ctx.beginPath();
-			ctx.arc(X,Y,20,0,2*Math.PI);
-			ctx.stroke();
 			if(this.nowPathData[name]){
-				
+				if(this.nowPathData[name]=='T'){
+					ctx.strokeStyle='lime';
+					ctx.fillStyle ='lime';
+					ctx.fillText(name, X-6*name.length, Y+6*name.length);
+					ctx.beginPath();
+					ctx.arc(X,Y,r,0,2*Math.PI);
+					ctx.stroke();
+				}else if(this.nowPathData[name]=='F'){
+					ctx.strokeStyle='red';
+					ctx.fillStyle ='red';
+					ctx.fillText(name, X-6*name.length, Y+6*name.length);
+					ctx.beginPath();
+					ctx.arc(X,Y,r,0,2*Math.PI);
+					ctx.stroke();
+				}else{
+					ctx.strokeStyle='blue';
+					ctx.fillStyle ='blue';
+					ctx.fillText(name, X-6*name.length, Y+6*name.length);
+					ctx.beginPath();
+					ctx.arc(X,Y,r,0,2*Math.PI);
+					ctx.stroke();
+				}
 			}else{
-				
+				ctx.strokeStyle='black';
+				ctx.fillStyle ='black';
+				ctx.fillText(name, X-6*name.length, Y+6*name.length);
+				ctx.beginPath();
+				ctx.arc(X,Y,r,0,2*Math.PI);
+				ctx.stroke();
 			}
 			if(mapdrawdata[tTo]){
-				
+				let tx=mapdrawdata[tTo].X;
+				let ty=mapdrawdata[tTo].Y;
+				let xx=X-tx;
+				let yy=Y-ty;
+				let angle=Math.atan(Math.abs(yy/xx));
+				if(xx==0){
+					angle=Math.PI/2;
+				}
+				let dx=Math.cos(angle)*r;
+				if(xx>0){
+					dx*=-1;
+				}
+				let dy=Math.sin(angle)*r;
+				if(yy>0){
+					dy*=-1;
+				}
+				if(this.nowPathData[name]=='T'&&nowEdege['$'+i]){
+					ctx.strokeStyle='gold';
+					ctx.fillStyle ='gold';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+
+					ctx.fillText('T', (X+tx)/2-6, (Y+ty)/2+6);
+					ctx.stroke();
+				}else{
+					ctx.strokeStyle='black';
+					ctx.fillStyle ='black';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+					
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+					
+					ctx.fillText('T', (X+tx)/2-6, (Y+ty)/2+6);
+					ctx.stroke();
+				}
 			}else{
-				
+				let tx=Tx;
+				let ty=Ty;
+				let xx=X-tx;
+				let yy=Y-ty;
+				let angle=Math.atan(Math.abs(yy/xx));
+				if(xx==0){
+					angle=Math.PI/2;
+				}
+				let dx=Math.cos(angle)*r;
+				if(xx>0){
+					dx*=-1;
+				}
+				let dy=Math.sin(angle)*r;
+				if(yy>0){
+					dy*=-1;
+				}
+				if(this.nowPathData[name]=='T'&&nowEdege['$'+i]){
+					ctx.strokeStyle='gold';
+					ctx.fillStyle ='gold';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+
+					ctx.fillText('T', (X+tx)/2-6, (Y+ty)/2+6);
+					ctx.stroke();
+				}else{
+					ctx.strokeStyle='black';
+					ctx.fillStyle ='black';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+					
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+
+					ctx.fillText('T', (X+tx)/2-6, (Y+ty)/2+6);		
+					ctx.stroke();
+				}
 			}
 			if(mapdrawdata[fTo]){
-				
-			}else{
+				let tx=mapdrawdata[fTo].X;
+				let ty=mapdrawdata[fTo].Y;
+				let xx=X-tx;
+				let yy=Y-ty;
+				let angle=Math.atan(Math.abs(yy/xx));
+				if(xx==0){
+					angle=Math.PI/2;
+				}
+				let dx=Math.cos(angle)*r;
+				if(xx>0){
+					dx*=-1;
+				}
+				let dy=Math.sin(angle)*r;
+				if(yy>0){
+					dy*=-1;
+				}
+				if(this.nowPathData[name]=='F'&&nowEdege['$'+i]){
+					ctx.strokeStyle='gold';
+					ctx.fillStyle ='gold';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
 
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+
+					ctx.fillText('F', (X+tx)/2-6, (Y+ty)/2+6);
+					ctx.stroke();
+				}else{
+					ctx.strokeStyle='black';
+					ctx.fillStyle ='black';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+					
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+					
+					ctx.fillText('F', (X+tx)/2-6, (Y+ty)/2+6);
+					ctx.stroke();
+				}
+			}else{
+				let tx=Fx;
+				let ty=Fy;
+				let xx=X-tx;
+				let yy=Y-ty;
+				let angle=Math.atan(Math.abs(yy/xx));
+				if(xx==0){
+					angle=Math.PI/2;
+				}
+				let dx=Math.cos(angle)*r;
+				if(xx>0){
+					dx*=-1;
+				}
+				let dy=Math.sin(angle)*r;
+				if(yy>0){
+					dy*=-1;
+				}
+				if(this.nowPathData[name]=='F'&&nowEdege['$'+i]){
+					ctx.strokeStyle='gold';
+					ctx.fillStyle ='gold';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+
+					ctx.fillText('F', (X+tx)/2-6, (Y+ty)/2+6);
+					ctx.stroke();
+				}else{
+					ctx.strokeStyle='black';
+					ctx.fillStyle ='black';
+					ctx.beginPath();
+					ctx.moveTo(X+dx,Y+dy);
+					ctx.lineTo((X+tx)/2-dx/r*12,(Y+ty)/2-dy/r*12);
+					ctx.moveTo((X+tx)/2+dx/r*12,(Y+ty)/2+dy/r*12);
+					ctx.lineTo(tx-dx,ty-dy);
+					let fx=1,fy=1;
+					if(dx<0){
+						fx=-1;
+					}
+					if(dy<0){
+						fy=-1;
+					}
+					
+					ctx.lineTo(tx-dx-fx*Math.cos(angle+Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle+Math.PI/4)*5);
+					ctx.moveTo(tx-dx,ty-dy);
+					ctx.lineTo(tx-dx-fx*Math.cos(angle-Math.PI/4)*5
+								,ty-dy-fy*Math.sin(angle-Math.PI/4)*5);
+
+					ctx.fillText('F', (X+tx)/2-6, (Y+ty)/2+6);		
+					ctx.stroke();
+				}
 			}
 		}
 		return true;
@@ -1202,15 +1611,24 @@ class App extends React.Component {
 									(<div>{this.readAnalyData()}</div>)
 								)}
 								{(
-									<canvas id="mapGraph" style={{
-										height: this.readAnalyMap()?'90px':'0px',
-									}}></canvas>
+									<div style={{ overflow: 'auto',
+										height: this.showCanvas?this.collopesStatus?'':'120px':'0px',
+										width:'auto',
+										zIndex: '99',
+										background: '#fff',
+									 }}
+									 onClick={()=>{
+										this.collopesStatus^=true;
+										this.forceUpdate();
+									 }}>
+										<canvas id="mapGraph">{this.readAnalyMap()}</canvas>	
+									</div>
 								)}
 							</Card>
 						</div>
 					</div>
 					<div className="display-box">
-					<Card title="测试用例" 
+					<Card title="测试用例(点击以保留数据至可视化)" 
 						headStyle={{
 							background:'#66ccff',
 							borderLeft:'1px solid #000',
@@ -1240,7 +1658,14 @@ class App extends React.Component {
 						{(
 							(this.readResList().length!=0 && !this.readLoadingStatus()) &&
 							(
-								<div>{this.readResList()}</div>
+								<div>
+									<div style={{position:'absolute',
+										width:'49px',
+										height:'109px',
+										background:'#fafafa',
+										zIndex:'999'}}></div>
+									{this.readResList()}
+								</div>
 							)
 						)}
 					</Card>
