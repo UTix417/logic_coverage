@@ -20,7 +20,7 @@ class App extends React.Component {
 	map = [];				//表达式形成的图
 	resList = [];			//测试用例
 	nowPathData = {};		//当前选中的测试用例
-	hasClickdata = false;		//是否有勾选的测试用例
+	hasClickdata = false;	//是否有勾选的测试用例
 	collopesStatus = false;	//测试用例路径图的展开状态
 	showCanvas = false;		//是否展示路径图，仅用于条件渲染
 	ElementAreas = [];		//化简后的表达式中的与块
