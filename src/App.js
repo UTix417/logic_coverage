@@ -17,13 +17,13 @@ class App extends React.Component {
 		}
 	}
 
-	map = [];
-	resList = [];
-	nowPathData = {};
-	hasClickdata=false;
-	collopesStatus=false;
-	showCanvas=false;
-	ElementAreas=[];
+	map = [];				//表达式形成的图
+	resList = [];			//测试用例
+	nowPathData = {};		//当前选中的测试用例
+	hasClickdata=false;		//是否有勾选的测试用例
+	collopesStatus=false;	//测试用例路径图的展开状态
+	showCanvas=false;		//是否展示路径图，仅用于条件渲染
+	ElementAreas=[];		//化简后的表达式中的与块
 
 	/**
 	 * 调用方：页面按钮
@@ -168,57 +168,6 @@ class App extends React.Component {
 			//console.log(tureStr,'???');
 			if(this.state.solveType==1){
 				this.preworkX(tureStr,this.work1);
-				{
-					// let target={};// &的部分
-					// let elements=[];// 变量
-					// let element='',elememtArea='';
-					// let res=[];// 测试用例
-					// for(let i=0;i<tureStr;i++){
-					// 	if(tureStr[i]=='|'){
-					// 		target[elememtArea]=[];
-					// 		elements[element]=1;
-					// 		element='';
-					// 		elememtArea='';
-					// 	}else if(tureStr[i]=='&'){
-					// 		elements[element]=1;
-					// 		element='';
-					// 	}else{
-					// 		elememtArea+=tureStr[i];
-					// 		if(tureStr[i]!='!'){
-					// 			element+=tureStr[i];
-					// 		}
-					// 	}
-					// }
-					// //可能需要化简
-					// let tempRes=[];
-					// for(let i=0;i<elements.length;i++){
-					// 	tempRes.push(1);
-					// }
-					// res.push(tempRes);
-					// tempRes=[];
-					// for(let i=0;i<elements.length;i++){
-					// 	tempRes.push(0);
-					// }
-					// res.push(tempRes);
-					// Object.keys(target).forEach((key)=>{//$$$ 如果想增加一些测试用例
-					// 	let isNotFlag=false;
-					// 	let innerElement='';
-					// 	for(let i=0;i<key.length;i++){
-					// 		if(key[i]=='!'){
-					// 			isNotFlag=true;
-					// 		}else if(key[i]=='&'){
-
-					// 			isNotFlag=false;
-					// 			innerElement='';
-					// 		}else{
-					// 			innerElement+=key[i];
-					// 		}
-					// 		if(i==key.length-1){
-
-					// 		}
-					// 	}
-					// })
-				}
 			}else if(this.state.solveType==2){
 				this.preworkX(tureStr,this.work2);
 			}else if(this.state.solveType==3){
@@ -348,15 +297,6 @@ class App extends React.Component {
 				}
 			}
 			if (str[i] == ']') {
-				// if(emptyFlag){
-				// 	if(str[i+1]=='&'){
-				// 		andFlag=true;
-				// 	}		
-				// }
-				// if (!andFlag) {
-				// 	str = str.substring(0, deleteStart - 1) + str.substring(deleteStart, i)+str.substring(i+1,str.length);
-				// 	i-=2;
-				// }
 				// console.log(str,"去括号运算中")
 				if(andFlag) {
 					//deleteStart-2 是乘法的结束
@@ -461,200 +401,6 @@ class App extends React.Component {
 	 * @param {string} tureStr 经过！简化的字符串
 	 */
 	preworkX = (tureStr,workFun) => {
-		{
-		// let syn = {};
-		// let pos = {};
-		// for (let i = 0; i < tureStr.length;) {
-		// 	let eleName = '';
-		// 	let eleSyn = '';
-		// 	let lasts = [];//用来维护算符段终点
-		// 	let notCount = 0;
-		// 	if (tureStr[i] === '|' || tureStr === '&') {
-		// 		if (eleSyn != tureStr[i]) {
-		// 			lasts.push(i);
-		// 		}
-		// 		eleSyn = tureStr[i];
-		// 	}
-		// 	while (true) {
-		// 		if (tureStr[i] === '!') {
-		// 			notCount++;
-		// 			if (tureStr[i] === '|' || tureStr[i] === '&' || i === tureStr.length) {
-		// 				break;
-		// 			} else if (eleName.length) {
-		// 				this.setState({
-		// 					loading: false,
-		// 				}, () => {
-		// 					notification['error']({
-		// 						message: '您输入的表达式有算符错误，请检查',
-		// 						description: null,
-		// 						onClick: () => {
-
-		// 						},
-		// 					});
-		// 				});
-		// 				return;
-		// 			}
-		// 		} else {
-		// 			eleName += tureStr[i];
-		// 		}
-		// 		i++;
-		// 	}
-		// 	if (notCount & 1) {
-		// 		eleSyn += '!';
-		// 	}
-		// 	{// if (syn[eleName]) {
-		// 	// 	if (syn[eleName] === eleSyn) {
-
-		// 	// 	} else {
-		// 	// 		if (syn[eleName] === '|' || syn[eleName] === '') {
-		// 	// 			if (eleSyn === '&!') {
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|!') {
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '&') {
-		// 	// 				let last = 0;
-		// 	// 				for (let j = 0; j < lasts.length; j++) {
-		// 	// 					if (lasts[j] > pos[eleName]) {
-		// 	// 						last = lasts[j];
-		// 	// 					}
-		// 	// 				}
-		// 	// 				Object.keys(pos).forEach((key) => {
-		// 	// 					if (pos[key] < last) {
-		// 	// 						delete pos[key];
-		// 	// 						delete syn[key];
-		// 	// 					}
-		// 	// 				})
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|') {
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 		}
-		// 	// 		if (syn[eleName] === '|!' || syn[eleName] === '!') {
-		// 	// 			if (eleSyn === '&') {
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|') {
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '&!') {
-		// 	// 				let last = 0;
-		// 	// 				for (let j = 0; j < lasts.length; j++) {
-		// 	// 					if (lasts[j] > pos[eleName]) {
-		// 	// 						last = lasts[j];
-		// 	// 					}
-		// 	// 				}
-		// 	// 				Object.keys(pos).forEach((key) => {
-		// 	// 					if (pos[key] < last) {
-		// 	// 						delete pos[key];
-		// 	// 						delete syn[key];
-		// 	// 					}
-		// 	// 				})
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|!') {
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 		}
-		// 	// 		if (syn[eleName] === '&') {
-		// 	// 			if (eleSyn === '&!') {
-		// 	// 				let last = 0;
-		// 	// 				for (let j = 0; j < lasts.length; j++) {
-		// 	// 					if (lasts[j] > pos[eleName]) {
-		// 	// 						last = lasts[j];
-		// 	// 					}
-		// 	// 				}
-		// 	// 				Object.keys(pos).forEach((key) => {
-		// 	// 					if (pos[key] < last) {
-		// 	// 						delete pos[key];
-		// 	// 						delete syn[key];
-		// 	// 					}
-		// 	// 				})
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|!') {
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '&') {
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|') {
-		// 	// 				let last = 0;
-		// 	// 				for (let j = 0; j < lasts.length; j++) {
-		// 	// 					if (lasts[j] > pos[eleName]) {
-		// 	// 						last = lasts[j];
-		// 	// 					}
-		// 	// 				}
-		// 	// 				Object.keys(pos).forEach((key) => {
-		// 	// 					if (pos[key] < last) {
-		// 	// 						delete pos[key];
-		// 	// 						delete syn[key];
-		// 	// 					}
-		// 	// 				})
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 		}
-		// 	// 		if (syn[eleName] === '&!') {
-		// 	// 			if (eleSyn === '&') {
-		// 	// 				let last = 0;
-		// 	// 				for (let j = 0; j < lasts.length; j++) {
-		// 	// 					if (lasts[j] > pos[eleName]) {
-		// 	// 						last = lasts[j];
-		// 	// 					}
-		// 	// 				}
-		// 	// 				Object.keys(pos).forEach((key) => {
-		// 	// 					if (pos[key] < last) {
-		// 	// 						delete pos[key];
-		// 	// 						delete syn[key];
-		// 	// 					}
-		// 	// 				})
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|') {
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '&!') {
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 			if (eleSyn === '|!') {
-		// 	// 				let last = 0;
-		// 	// 				for (let j = 0; j < lasts.length; j++) {
-		// 	// 					if (lasts[j] > pos[eleName]) {
-		// 	// 						last = lasts[j];
-		// 	// 					}
-		// 	// 				}
-		// 	// 				Object.keys(pos).forEach((key) => {
-		// 	// 					if (pos[key] < last) {
-		// 	// 						delete pos[key];
-		// 	// 						delete syn[key];
-		// 	// 					}
-		// 	// 				})
-		// 	// 				syn[eleName] = eleSyn;
-		// 	// 				pos[eleName] = i;
-		// 	// 			}
-		// 	// 		}
-		// 	// 	}
-		// 	// } else {
-		// 	// 	syn[eleName] = eleSyn;
-		// 	// 	pos[eleName] = i;
-		// 	// }
-		// 	}
-		// }
-		}
-
 		let _eleAreas=[];
 		let _element='';
 		let _eleArea=[];
@@ -753,9 +499,6 @@ class App extends React.Component {
 						tTo: '$T',
 						fTo: '$F',
 					});
-					// toTIndex.forEach((value) => {
-					// 	this.map[value].tTo = this.map.length - 1;
-					// })
 					if(toTIndex.index!=-1){
 						if(toTIndex.isfalse!=1){
 							this.map[toTIndex.index].tTo=this.map.length - 1;
@@ -822,9 +565,6 @@ class App extends React.Component {
 						tTo: '$F',
 						fTo: '$T',
 					});
-					// toFIndex.forEach((value) => {
-					// 	this.map[value].fTo = this.map.length - 1;
-					// });
 					if(toTIndex.index!=-1){
 						if(toTIndex.isfalse!=1){
 							this.map[toTIndex.index].tTo=this.map.length - 1;
@@ -852,80 +592,6 @@ class App extends React.Component {
 	 * 作用：生成测试用例
 	 */
 	work1 = () => {
-		{
-		// pos = Object.keys(pos).sort((a, b) => {
-		// 	return pos[a] - pos[b];
-		// })
-		// let workStr = '';
-		// let this.map = [{
-		// 	name: '$head',
-		// 	tTo: '$T',//'$T' or index
-		// 	fTo: '$F',//'$F' or index
-		// }];
-		// let toTIndex = [];
-		// let toFIndex = [];
-		// Object.keys(pos).forEach((key) => {
-		// 	if (workStr == '') {
-		// 		workStr += key;
-		// 	} else {
-		// 		workStr += syn[key] + key;
-		// 	}
-		// 	let workType = this.state.solveType;
-		// 	if (workType == 1) {// 1条件判定
-		// 		if (workStr == '') {
-		// 			this.map[0].name = key;
-		// 			toTIndex.push(0);
-		// 			toFIndex.push(0);
-		// 		} else {
-		// 			if (syn[key] == '&') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toTIndex.forEach((value) => {
-		// 					this.map[value].tTo = this.map.length - 1;
-		// 				})
-		// 				toTIndex = this.map.length - 1;
-		// 				toFIndex.push(this.map.length - 1);
-		// 			} else if (syn[key] == '|!') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toTIndex.forEach((value) => {
-		// 					this.map[value].tTo = this.map.length - 1;
-		// 				})
-		// 				toTIndex = this.map.length - 1;
-		// 				toFIndex.push(this.map.length - 1);
-		// 			} else if (syn[key] == '|') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toFIndex.forEach((value) => {
-		// 					this.map[value].fTo = this.map.length - 1;
-		// 				});
-		// 				toFIndex = this.map.length - 1;
-		// 				toTIndex.push(this.map.length - 1);
-		// 			} else if (syn[key] == '&!') {
-		// 				this.map.push({
-		// 					name: key,
-		// 					tTo: '$T',
-		// 					fTo: '$F',
-		// 				});
-		// 				toFIndex.forEach((value) => {
-		// 					this.map[value].fTo = this.map.length - 1;
-		// 				});
-		// 				toFIndex = this.map.length - 1;
-		// 				toTIndex.push(this.map.length - 1);
-		// 			}
-		// 		}
-		// 	}
-		// })
-		}
 		this.getPathFromMap(0,{}).then(()=>{
 			if(this.map.length!=0){
 				this.showCanvas=true;
@@ -947,15 +613,6 @@ class App extends React.Component {
 		if(this.map.length==0){
 			return;
 		}
-		// console.log(nowindex,nowPath)
-		// if(nowPath[this.map[nowindex].name]=='T'){
-		// 	this.getPathFromMap(this.map,this.map[nowindex].tTo,JSON.parse(JSON.stringify(nowPath)));
-		// 	return;
-		// }
-		// if(nowPath[this.map[nowindex].name]=='F'){
-		// 	this.getPathFromMap(this.map,this.map[nowindex].tFo,JSON.parse(JSON.stringify(nowPath)));
-		// 	return;
-		// }
 		if(nowPath[this.map[nowindex].name]!='F'){
 			if(this.map[nowindex].tTo=='$T'){
 				tempPath=JSON.parse(JSON.stringify(nowPath));
@@ -965,13 +622,6 @@ class App extends React.Component {
 				tempPath[this.map[nowindex].name]='T';
 				tempPath['$res']='T';
 				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-				// let tempList=[...this.state.resList];
-				// console.log(this.resList,"??",tempPath)
-				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
-				// console.log(tempList,"!!",tempPath)
-				// this.setState({
-				// 	resList: tempList
-				// });
 			}else if(this.map[nowindex].tTo=='$F'){
 				tempPath=JSON.parse(JSON.stringify(nowPath));
 				tempPath[this.map[nowindex].name]='T';
@@ -989,13 +639,6 @@ class App extends React.Component {
 				tempPath[this.map[nowindex].name]='F';
 				tempPath['$res']='F';
 				this.resList.push(JSON.parse(JSON.stringify(tempPath)));
-				// let tempList=[...this.state.resList];
-				// console.log(this.resList,"??",tempPath)
-				// tempList.push(JSON.parse(JSON.stringify(tempPath)));
-				// console.log(tempList,"!!",tempPath)
-				// this.setState({
-				// 	resList: tempList
-				// });
 			}else if(this.map[nowindex].fTo=='$T'){
 				tempPath=JSON.parse(JSON.stringify(nowPath));
 				tempPath[this.map[nowindex].name]='F';
