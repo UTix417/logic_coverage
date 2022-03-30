@@ -59,13 +59,29 @@ class App extends React.Component {
 		for (let i = 0; i < tempLen; i++) {
 			if (temp[i] === '(') {
 				tempArray.push(i);
+				if(temp[i-1]!=='!' && temp[i-1]!=='|' && temp[i-1]!=='&' && temp[i-1]!=='('){
+					sysflag = true;
+					break;
+				}
 			}
 			if (temp[i] === ')') {
 				if (tempArray.length === 0) {
 					kuohaoflag = true;
 					break;
 				}
+				if(temp[i-1]==='!' && temp[i-1]==='|' && temp[i-1]==='&' && temp[i-1]==='('){
+					sysflag = true;
+					break;
+				}
 				tempArray.pop();
+			}
+			if (temp[i] === '!'){
+				if (i>0) {
+					if(temp[i-1]!=='!' && temp[i-1]!=='|' && temp[i-1]!=='&' && temp[i-1]!=='('){
+						sysflag = true;
+						break;
+					}
+				}
 			}
 			if (i > 0) {
 				if (temp[i] === temp[i - 1] && (temp[i] === '&' || temp[i] === '|')) {
