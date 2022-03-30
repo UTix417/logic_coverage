@@ -183,7 +183,8 @@ class App extends React.Component {
 	 * @param {string} str 当前处理的字符串字串 
 	 */
 	toFormat = async (str) => {
-		// console.log(str,'1');
+		// console.log(str,'递归开始');
+		// debugger
 		let startIndex = -1;
 		let num = [];
 		let nowNotFlag = 0;
@@ -410,6 +411,7 @@ class App extends React.Component {
 		let _eleAreas = [];
 		let _element = '';
 		let _eleArea = [];
+		// console.log(tureStr,'二次化简前')
 		for (let i = 0; i < tureStr.length; i++) {
 			if (tureStr[i] === '|') {
 				_eleArea.push(_element);
@@ -432,6 +434,7 @@ class App extends React.Component {
 		_eleAreas.sort((x, y) => {
 			return x.length - y.length;
 		});
+		// console.log(_eleAreas,'排序后')
 		let deleteIndex = [];
 		for (let i = 0; i < _eleAreas.length; i++) {
 			for (let j = i + 1; j < _eleAreas.length; j++) {
@@ -527,13 +530,13 @@ class App extends React.Component {
 						tTo: '$F',
 						fTo: '$T',
 					});
-					toTIndex.forEach((value) => {
+					toFIndex.forEach((value) => {
 						if (value.isfalse !== 1) {
 							this.map[value.index].fTo = this.map.length - 1;
 						} else {
 							this.map[value.index].tTo = this.map.length - 1;
 						}
-					})
+					});
 					this.map[i].elesyn = mapdata[i].elesyn;
 					toTIndex = {
 						index: this.map.length - 1,
