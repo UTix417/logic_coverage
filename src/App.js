@@ -859,7 +859,7 @@ class App extends React.Component {
 					}}
 					columns={columns}
 					dataSource={data}
-					scroll={{ y: 300 }}
+					scroll={{ y: 110 }}
 					pagination={false}
 					bordered={true}
 				/>);
@@ -1360,49 +1360,96 @@ class App extends React.Component {
 				</Title>
 				<div style={{ paddingLeft: '10%', paddingRight: '10%' }}>
 					<div className="work-box">
-						<div className="input-box">
-							<Card title="数据操作"
-								headStyle={{
-									background: '#66ccff',
-									borderLeft: '1px solid #000',
-									borderRight: '1px solid #000',
-									borderTop: '1px solid #000',
-								}}
-								bodyStyle={{
-									borderLeft: '1px solid #000',
-									borderRight: '1px solid #000',
-									borderBottom: '1px solid #000',
-								}}
-							>
-								<Text code>变量名仅支持英文字母</Text>
-								<Text code>算符仅支持 & | ! ( )</Text>
-								<TextArea className="input"
-									value={this.state.text}
-									onChange={this.input.bind(this)}
-									placeholder="Basic usage"
-									rows={4}
-								/>
-								<div className="button-box">
-									<Button className="button"
-										type="primary"
-										disabled={this.state.loading && this.state.solveType !== 1}
-										onClick={this.prework.bind(this, 1)}
-										loading={this.state.loading && this.state.solveType === 1}
-									>条件/判定</Button>
-									<Button className="button"
-										type="primary"
-										disabled={this.state.loading && this.state.solveType !== 2}
-										onClick={this.prework.bind(this, 2)}
-										loading={this.state.loading && this.state.solveType === 2}
-									>条件组合</Button>
-									<Button className="button"
-										type="primary"
-										disabled={this.state.loading && this.state.solveType !== 3}
-										onClick={this.prework.bind(this, 3)}
-										loading={this.state.loading && this.state.solveType === 3}
-									>MC/DC</Button>
-								</div>
-							</Card>
+						<div className="left-box">
+							<div className="input-box">
+								<Card title="数据操作"
+									headStyle={{
+										background: '#66ccff',
+										borderLeft: '1px solid #000',
+										borderRight: '1px solid #000',
+										borderTop: '1px solid #000',
+									}}
+									bodyStyle={{
+										borderLeft: '1px solid #000',
+										borderRight: '1px solid #000',
+										borderBottom: '1px solid #000',
+									}}
+								>
+									<Text code>变量名仅支持英文字母</Text>
+									<Text code>算符仅支持 & | ! ( )</Text>
+									<TextArea className="input"
+										value={this.state.text}
+										onChange={this.input.bind(this)}
+										placeholder="Basic usage"
+										rows={4}
+									/>
+									<div className="button-box">
+										<Button className="button"
+											type="primary"
+											disabled={this.state.loading && this.state.solveType !== 1}
+											onClick={this.prework.bind(this, 1)}
+											loading={this.state.loading && this.state.solveType === 1}
+										>条件/判定</Button>
+										<Button className="button"
+											type="primary"
+											disabled={this.state.loading && this.state.solveType !== 2}
+											onClick={this.prework.bind(this, 2)}
+											loading={this.state.loading && this.state.solveType === 2}
+										>条件组合</Button>
+										<Button className="button"
+											type="primary"
+											disabled={this.state.loading && this.state.solveType !== 3}
+											onClick={this.prework.bind(this, 3)}
+											loading={this.state.loading && this.state.solveType === 3}
+										>MC/DC</Button>
+									</div>
+								</Card>
+							</div>
+							<div className="display-box">
+								<Card title="测试用例(点击以保留数据至可视化)"
+									headStyle={{
+										background: '#66ccff',
+										borderLeft: '1px solid #000',
+										borderRight: '1px solid #000',
+										borderTop: '1px solid #000',
+									}}
+									bodyStyle={{
+										borderLeft: '1px solid #000',
+										borderRight: '1px solid #000',
+										borderBottom: '1px solid #000',
+									}}
+								>
+									{(
+										(this.readResList().length === 0 && !this.readLoadingStatus()) &&
+										(<div className='border'>
+											<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+										</div>)
+									)}
+									{(
+										this.readLoadingStatus() &&
+										(
+											<div style={{ textAlign: 'center' }}>
+												<Spin indicator={<LoadingOutlined style={{ fontSize: 60 }} spin />} />
+											</div>
+										)
+									)}
+									{(
+										(this.readResList().length !== 0 && !this.readLoadingStatus()) &&
+										(
+											<div>
+												<div style={{
+													position: 'absolute',
+													width: '49px',
+													height: '109px',
+													background: '#fafafa',
+													zIndex: '999'
+												}}></div>
+												{this.readResList()}
+											</div>
+										)
+									)}
+								</Card>
+							</div>	
 						</div>
 						<div className="showInfo-box">
 							<Card title="可视化数据"
@@ -1439,65 +1486,21 @@ class App extends React.Component {
 								{(
 									<div style={{
 										overflow: 'auto',
-										height: this.showCanvas ? this.collopesStatus ? '' : '120px' : '0px',
+										// height: this.showCanvas ? this.collopesStatus ? '' : '421px' : '0px',
+										height: this.showCanvas ? '421px' : '0px',
 										width: 'auto',
 										zIndex: '99',
 										background: '#fff',
 									}}
 										onClick={() => {
-											this.collopesStatus ^= true;
-											this.forceUpdate();
+											// this.collopesStatus ^= true;
+											// this.forceUpdate();
 										}}>
 										<canvas id="mapGraph">{this.readAnalyMap()}</canvas>
 									</div>
 								)}
 							</Card>
 						</div>
-					</div>
-					<div className="display-box">
-						<Card title="测试用例(点击以保留数据至可视化)"
-							headStyle={{
-								background: '#66ccff',
-								borderLeft: '1px solid #000',
-								borderRight: '1px solid #000',
-								borderTop: '1px solid #000',
-							}}
-							bodyStyle={{
-								borderLeft: '1px solid #000',
-								borderRight: '1px solid #000',
-								borderBottom: '1px solid #000',
-							}}
-						>
-							{(
-								(this.readResList().length === 0 && !this.readLoadingStatus()) &&
-								(<div className='border'>
-									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-								</div>)
-							)}
-							{(
-								this.readLoadingStatus() &&
-								(
-									<div style={{ textAlign: 'center' }}>
-										<Spin indicator={<LoadingOutlined style={{ fontSize: 60 }} spin />} />
-									</div>
-								)
-							)}
-							{(
-								(this.readResList().length !== 0 && !this.readLoadingStatus()) &&
-								(
-									<div>
-										<div style={{
-											position: 'absolute',
-											width: '49px',
-											height: '109px',
-											background: '#fafafa',
-											zIndex: '999'
-										}}></div>
-										{this.readResList()}
-									</div>
-								)
-							)}
-						</Card>
 					</div>
 				</div>
 			</>

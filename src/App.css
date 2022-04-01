@@ -9,8 +9,12 @@
   display: flex;
 }
 
-.input-box{
+.left-box{
   width: 48%;
+}
+
+.input-box{
+  
 }
 
 .showInfo-box{
