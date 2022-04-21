@@ -59,7 +59,7 @@ class App extends React.Component {
 		for (let i = 0; i < tempLen; i++) {
 			if (temp[i] === '(') {
 				tempArray.push(i);
-				if(temp[i-1]!=='!' && temp[i-1]!=='|' && temp[i-1]!=='&' && temp[i-1]!=='('){
+				if (i > 0 && temp[i - 1] !== '!' && temp[i - 1] !== '|' && temp[i - 1] !== '&' && temp[i - 1] !== '(') {
 					sysflag = true;
 					break;
 				}
@@ -69,15 +69,15 @@ class App extends React.Component {
 					kuohaoflag = true;
 					break;
 				}
-				if(temp[i-1]==='!' && temp[i-1]==='|' && temp[i-1]==='&' && temp[i-1]==='('){
+				if (i > 0 && temp[i - 1] === '!' && temp[i - 1] === '|' && temp[i - 1] === '&' && temp[i - 1] === '(') {
 					sysflag = true;
 					break;
 				}
 				tempArray.pop();
 			}
-			if (temp[i] === '!'){
-				if (i>0) {
-					if(temp[i-1]!=='!' && temp[i-1]!=='|' && temp[i-1]!=='&' && temp[i-1]!=='('){
+			if (temp[i] === '!') {
+				if (i > 0) {
+					if (temp[i - 1] !== '!' && temp[i - 1] !== '|' && temp[i - 1] !== '&' && temp[i - 1] !== '(') {
 						sysflag = true;
 						break;
 					}
@@ -287,7 +287,7 @@ class App extends React.Component {
 				inFlag = false;
 			}
 			if ((str[i] === '|' || str[i] === '&') && !inFlag) {
-				if (str[i - 1] !== ']') {
+				if (i>0 && str[i - 1] !== ']') {
 					str = str.substring(0, elementStar) + '[' + str.substring(elementStar, i) + ']' + str.substring(i, str.length);
 					i += 2;
 				}
@@ -1449,7 +1449,7 @@ class App extends React.Component {
 										)
 									)}
 								</Card>
-							</div>	
+							</div>
 						</div>
 						<div className="showInfo-box">
 							<Card title="可视化数据"
