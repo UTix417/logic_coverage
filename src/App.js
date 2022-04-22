@@ -206,7 +206,7 @@ class App extends React.Component {
 		let nowNotFlag = 0;
 		//去括号递归
 		for (let i = 0; i < str.length; i++) {
-			// console.log(str[i],str)
+			// console.log(str[i],str,num.length)
 			if (str[i] === '(') {
 				if (num.length === 0) {
 					startIndex = i + 1;
@@ -222,7 +222,7 @@ class App extends React.Component {
 				num.push(i);
 				continue;
 			}
-			if (nowNotFlag) {
+			if (nowNotFlag) {//还是有问题 !((a|b)&c|d)&(e|h)&a
 				if (str[i] === '&') {
 					str = str.substring(0, i) + '|' + str.substring(i + 1, str.length);
 				} else if (str[i] === '|') {
@@ -261,32 +261,38 @@ class App extends React.Component {
 			if (str[i] === ')') {
 				num.pop();
 				if (num.length === 0) {
-					// console.log(startIndex,str.substring(startIndex, i))
+					// console.log(startIndex,str.substring(startIndex, i),str);
 					let res = await this.toFormat(str.substring(startIndex, i));
+					// console.log(res,'->',str);
+					// debugger;
 					let tempStr = str;
 					str = '[' + res + ']';
 					if (startIndex > 0) {
 						str = tempStr.substring(0, startIndex - 1 - nowNotFlag) + str;
 					}
+					// console.log(str,"str---");
+					let tempi = i;
 					i = str.length - 1;
-					if (i < tempStr.length - 1) {
-						str = str + tempStr.substring(i + 1, tempStr.length);
+					if (tempi < tempStr.length - 1) {
+						str = str + tempStr.substring(tempi + 1, tempStr.length);
 					}
+					// console.log(str,'处理后')
 					nowNotFlag = 0;
 				}
 			}
 		}
 		let elementStar = 0;
 		let inFlag = false;
-		// console.log(str,'递归结束');
+		console.log(str,'递归结束');
 		for (let i = 0; i < str.length; i++) {
 			if (str[i] === '[') {
 				inFlag = true;
 			}
 			if (str[i] === ']') {
 				inFlag = false;
+				elementStar = i + 2;
 			}
-			if ((str[i] === '|' || str[i] === '&') && !inFlag) {
+			if ((str[i] === '|'/* || str[i] === '&'*/) && !inFlag) {
 				if (i>0 && str[i - 1] !== ']') {
 					str = str.substring(0, elementStar) + '[' + str.substring(elementStar, i) + ']' + str.substring(i, str.length);
 					i += 2;
@@ -517,7 +523,10 @@ class App extends React.Component {
 			*/
 			let toTIndex = { index: -1, isNot: false };
 			let toFIndex = [];
+			// console.log(mapdata,">>>>>>>>>>");	
 			for (let i = 0; i < mapdata.length; i++) {
+				// console.log(mapdata[i],this.map,toFIndex);
+				// debugger
 				if (mapdata[i].elesyn === '&') {
 					this.map.push({
 						name: mapdata[i].elename,
@@ -554,14 +563,14 @@ class App extends React.Component {
 						}
 					});
 					this.map[i].elesyn = mapdata[i].elesyn;
+					toFIndex = [{
+						index: this.map.length - 1,
+						isfalse: 1,
+					}];
 					toTIndex = {
 						index: this.map.length - 1,
 						isfalse: 1,
 					};
-					toFIndex.push({
-						index: this.map.length - 1,
-						isfalse: 1,
-					});
 				} else if (mapdata[i].elesyn === '|') {
 					this.map.push({
 						name: mapdata[i].elename,
@@ -598,14 +607,14 @@ class App extends React.Component {
 						}
 					}
 					this.map[i].elesyn = mapdata[i].elesyn;
-					toFIndex = [{
-						index: this.map.length - 1,
-						isfalse: 1,
-					}];
 					toTIndex = {
 						index: this.map.length - 1,
 						isfalse: 1,
 					};
+					toFIndex.push({
+						index: this.map.length - 1,
+						isfalse: 1,
+					});
 				}
 			}
 			workFun();
